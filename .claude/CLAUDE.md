@@ -20,7 +20,7 @@ Se o que for pedido contradizer estes documentos, **dizer primeiro o que está e
 
 ## Comportamento de sessão
 
-- Conversar em português de Portugal. Código, nomes, comentários e mensagens de commit em inglês.
+- Conversar em português de Portugal. Código e nomes em inglês. Comentários no código em português, para a apresentação ao formador. Mensagens da API para o utilizador (erros, validações) em português. Mensagens de commit em inglês.
 - Só editar código ou ficheiros quando for pedido.
 - Explicar a abordagem antes de mostrar código. Em conceitos novos, dar uma versão simples (com analogia) e uma versão técnica.
 - Comentários no código explicam **o porquê** das decisões, não o que a linha faz.

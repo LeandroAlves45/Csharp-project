@@ -56,11 +56,11 @@ O primeiro cria um certificado local e marca-o como confiável, para o browser a
 
 ## 2. Git no dia a dia
 
-Cada pessoa trabalha na sua branch (`Bruno`, `Leandro`, `Pedro`, `Rodrigo`). Ninguém faz push direto para o `main`.
+Cada área tem a sua branch, com o nome da função: `auth` (Pedro), `cars` (Rodrigo), `reservations` (Bruno), `frontend` (Leandro). Ninguém faz push direto para o `main`.
 
 **Versão simples:** o `main` é o caderno passado a limpo da turma. Cada um escreve no seu caderno de rascunho (a sua branch). Quando uma parte está pronta e revista por um colega, passa-se para o caderno limpo (pull request). Todos os dias copiamos para o nosso rascunho o que os outros já passaram a limpo (merge do main).
 
-**Versão técnica:** fluxo com branches de longa duração por pessoa, integração diária do `main` na branch pessoal para reduzir divergência, e integração no `main` só por pull request revisto.
+**Versão técnica:** fluxo com branches de longa duração por área, integração diária do `main` na branch da área para reduzir divergência, e integração no `main` só por pull request revisto.
 
 ### Primeira vez (clonar)
 
