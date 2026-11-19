@@ -7,7 +7,7 @@ A divisão é feita **por funcionalidade de ponta a ponta** e não por camadas. 
 | Pessoa | Área | Responsabilidades |
 | --- | --- | --- |
 | Pedro | Utilizadores e autenticação | `User`, `IUserRepository` e implementação em memória, `AuthService` (registo, login, validação de dados, hash das passwords), `AuthController`, DTOs da área, testes da área. |
-| Rodrigo | Carros | `Car`, dados iniciais (seed), `ICarRepository` e implementação em memória, `CarService` com pesquisa por disponibilidade, `CarsController`, DTOs da área, testes da área. |
+| Rodrigo | Carros | `Car` (incluindo `ImageUrl` para a fotografia), dados iniciais (seed), `ICarRepository` e implementação em memória, `CarService` com pesquisa por disponibilidade, `CarsController`, DTOs da área, testes da área. |
 | Bruno | Reservas | `Reservation` e `ReservationStatus`, `IReservationRepository` e implementação em memória, `ReservationService` com as regras R1 a R5 e C1 a C3, histórico de reservas, `ReservationsController`, DTOs da área, testes da área. |
 | Leandro | Frontend, arquitetura e integração. Scrum Master | Estrutura da solução, `Program.cs` (injeção de dependências, CORS, OpenAPI), exceções e handler global, aplicação Angular completa (4 ecrãs), integração com a API, quadro Kanban, cerimónias, consolidação do relatório. |
 

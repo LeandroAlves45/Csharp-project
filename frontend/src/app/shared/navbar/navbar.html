@@ -1,0 +1,17 @@
+<header class="navbar">
+  <a class="navbar__brand" routerLink="/cars">Auto<span>Rent</span></a>
+
+  <!-- Sem sessão (login e registo) só aparece o nome da app, como no design -->
+  @if (user(); as currentUser) {
+    <nav class="navbar__links" aria-label="Navegação principal">
+      <!-- routerLinkActive põe a classe is-active no link da página atual -->
+      <a routerLink="/cars" routerLinkActive="is-active">Carros</a>
+      <a routerLink="/my-reservations" routerLinkActive="is-active">As minhas reservas</a>
+    </nav>
+
+    <div class="navbar__user">
+      <span>{{ currentUser.name }}</span>
+      <button type="button" class="navbar__logout" (click)="logout()">Sair</button>
+    </div>
+  }
+</header>
