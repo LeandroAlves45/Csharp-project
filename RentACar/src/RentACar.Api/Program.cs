@@ -1,3 +1,4 @@
+using RentACar.Api.Exceptions;
 using RentACar.Api.Repositories;
 using RentACar.Api.Repositories.InMemory;
 using RentACar.Api.Services;
@@ -9,6 +10,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Erros em ProblemDetails: o handler global converte as nossas exceções no código HTTP certo
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // CORS: o browser só deixa o Angular (localhost:4200) ler respostas de outra origem
 // se a API o autorizar. Só esta origem: qualquer outro site continua bloqueado.
@@ -42,6 +47,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Primeiro do pipeline: assim apanha exceções vindas de tudo o que corre depois dele
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 
