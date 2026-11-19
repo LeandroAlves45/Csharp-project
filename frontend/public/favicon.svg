@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Favicon do AutoRent: "A" lima sobre fundo tinta, as mesmas cores da barra de topo do design -->
+  <!-- O "A" é desenhado com formas e não com texto, porque um SVG usado como favicon não carrega web fonts -->
+  <rect width="64" height="64" rx="14" fill="#0F0F1A" />
+  <path d="M32 11 L51 53 H41 L32 32 L23 53 H13 Z" fill="#D4FF3A" />
+  <rect x="21" y="40" width="22" height="6" rx="2" fill="#D4FF3A" />
+</svg>
