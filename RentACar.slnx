@@ -1,3 +1,9 @@
 <Solution>
-  <Project Path="RentACar/RentACar.csproj" />
+  <Folder Name="/RentACar/" />
+  <Folder Name="/RentACar/src/">
+    <Project Path="RentACar/src/RentACar.Api/RentACar.Api.csproj" />
+  </Folder>
+  <Folder Name="/RentACar/tests/">
+    <Project Path="RentACar/tests/RentACar.Tests/RentACar.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -1,0 +1,3 @@
+@RentACar.Api_HostAddress = http://localhost:5288
+
+# Add one request per endpoint here, separated by ###, to test the API from Visual Studio.
