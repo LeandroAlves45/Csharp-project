@@ -1,3 +1,66 @@
-@RentACar.Api_HostAddress = http://localhost:5288
+@RentACar_HostAddress = http://localhost:5288
 
-# Add one request per endpoint here, separated by ###, to test the API from Visual Studio.
+### TESTE 1 - Registar utilizador
+
+POST {{RentACar_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "Pedro",
+    "email": "pedro@teste.com",
+    "password": "Teste123"
+}
+
+### TESTE 2 - Login
+
+POST {{RentACar_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "pedro@teste.com",
+    "password": "Teste123"
+}
+
+### TESTE 4 - Email inválido
+
+POST {{RentACar_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "Rodrigo",
+    "email": "rodrigo123",
+    "password": "Teste123"
+}
+
+### TESTE 5 - Password demasiado curta
+
+POST {{RentACar_HostAddress}}/api/auth/register
+Content-Type: application/json
+
+{
+    "name": "Bruno",
+    "email": "bruno@teste.com",
+    "password": "123"
+}
+
+### TESTE 6 - Login com password errada
+
+POST {{RentACar_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "pedro@teste.com",
+    "password": "Errada123"
+}
+
+### TESTE 7 - Utilizador inexistente
+
+POST {{RentACar_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+    "email": "inexistente@teste.com",
+    "password": "Teste123"
+}
+
+###
