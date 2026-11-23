@@ -203,6 +203,17 @@ As mensagens das exceções são escritas em português (por exemplo "Email ou p
 
 Porque 409 e não 400 quando o carro está ocupado? Porque o pedido está bem formado. O problema é o conflito com o estado atual do sistema.
 
+### 8.1 Como está implementado
+
+- As exceções e o handler estão na pasta `Exceptions/`. O handler é a classe `GlobalExceptionHandler` (interface `IExceptionHandler` do ASP.NET Core) e está registado no `Program.cs` com `AddProblemDetails()`, `AddExceptionHandler<GlobalExceptionHandler>()` e `app.UseExceptionHandler()`.
+- A mensagem da exceção vai no campo `detail` do `ProblemDetails`. O frontend mostra sempre esse campo ao utilizador. Exemplo de resposta:
+
+  ```json
+  { "status": 409, "title": "Conflict", "detail": "A reserva conflita com uma reserva existente." }
+  ```
+
+- Uma exceção que não seja uma das cinco acima (por exemplo `ArgumentException` ou um erro de programação) dá **500** com um `ProblemDetails` genérico, sem a mensagem nem a stack trace. Assim, um erro inesperado nunca mostra detalhes internos ao cliente. Por isso, as regras de negócio têm de lançar sempre uma das cinco exceções.
+
 ## 9. Autenticação
 
 Escolhemos o login simples (opção B): o login valida email e password e devolve o id do utilizador. O frontend guarda o id e envia-o nos pedidos.

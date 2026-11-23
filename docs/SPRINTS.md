@@ -77,8 +77,8 @@ Os comandos estão em `docs/COMMANDS.md`, secção 2.
 
 | ID | Tarefa | Responsável | Estado |
 | --- | --- | --- | --- |
-| S1-01 | Exceções próprias e handler global com os códigos de `ARCHITECTURE.md`, secção 8 | Leandro | |
-| S1-02 | Registo das dependências no `Program.cs` (repositórios em memória como Singleton) | Leandro | |
+| S1-01 | Exceções próprias e handler global com os códigos de `ARCHITECTURE.md`, secção 8 | Leandro | Feito (19/11). Falta cada área trocar as suas exceções |
+| S1-02 | Registo das dependências no `Program.cs` (repositórios em memória como Singleton) | Leandro | Feito (19/11) |
 | S1-03 | Método da regra de sobreposição (prioridade, primeiro dia) | Bruno | |
 | S1-04 | `Reservation`, `ReservationStatus` e repositório em memória | Bruno | |
 | S1-05 | Criar reserva com regras R1 a R5 | Bruno | |
@@ -98,11 +98,11 @@ Os comandos estão em `docs/COMMANDS.md`, secção 2.
 
 | ID | Tarefa | Responsável | Estado |
 | --- | --- | --- | --- |
-| S2-01 | Criar o projeto Angular, rotas, `HttpClient`, URL da API e variáveis CSS do layout AutoRent | Leandro | |
-| S2-02 | Ativar CORS no backend para `http://localhost:4200` | Leandro | |
-| S2-03 | Ecrãs de Login e Registo e serviço de autenticação | Leandro | |
-| S2-04 | Ecrã de Carros disponíveis com reserva | Leandro | |
-| S2-05 | Ecrã As minhas reservas com cancelamento | Leandro | |
+| S2-01 | Criar o projeto Angular, rotas, `HttpClient`, URL da API e variáveis CSS do layout AutoRent | Leandro | Feito (20/11): `HttpClient` adicionado |
+| S2-02 | Ativar CORS no backend para `http://localhost:4200` | Leandro | Feito (19/11) |
+| S2-03 | Ecrãs de Login e Registo e serviço de autenticação | Leandro | Feito (20/11), ligado à API real |
+| S2-04 | Ecrã de Carros disponíveis com reserva | Leandro | Feito com mock (23/11); falta ligar à API quando o filtro por datas, o `imageUrl` e os erros das reservas estiverem corrigidos |
+| S2-05 | Ecrã As minhas reservas com cancelamento | Leandro | Feito com mock (23/11); falta ligar à API e o `status` vir como texto |
 | S2-06 | Testar a integração de cada área no frontend e corrigir erros da API | Pedro, Rodrigo, Bruno | |
 | S2-07 | Extras escolhidos na review do Sprint 1 | A definir | |
 | S2-11 | Fotografias dos carros em `frontend/public/images/cars/`, com os mesmos nomes do seed | Rodrigo e Leandro | |
