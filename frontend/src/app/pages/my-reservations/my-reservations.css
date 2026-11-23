@@ -1,0 +1,123 @@
+.reservations {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.reservations h1 {
+  font-size: 40px;
+  letter-spacing: -0.02em;
+}
+
+.reservations__eyebrow {
+  margin: 0 0 var(--space-2);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.reservations__muted {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+.reservations__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.reservations__empty p {
+  margin: 0;
+}
+
+/* overflow-x: auto só no contentor: em telemóvel a tabela desliza e a página não.
+   position: relative prende cá dentro o texto escondido "Ações" (position: absolute);
+   sem isto ele escapava e alargava a página inteira */
+.reservations__table-wrap {
+  position: relative;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.reservations__table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.reservations__table th,
+.reservations__table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.reservations__table th {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.reservations__table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Reservas canceladas ficam mais apagadas: o olho vai primeiro para as ativas */
+.reservations__table tr.is-cancelled td {
+  color: var(--color-muted);
+}
+
+.reservations__id {
+  font-family: var(--font-mono);
+}
+
+.reservations__actions {
+  text-align: right;
+}
+
+.reservations__actions .btn {
+  padding: var(--space-2) var(--space-4);
+}
+
+.status {
+  display: inline-block;
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status--active {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.reservations__question {
+  margin: 0 0 var(--space-3);
+  line-height: 1.5;
+}
+
+/* Texto só para leitores de ecrã: a coluna dos botões tem nome, mas não aparece */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

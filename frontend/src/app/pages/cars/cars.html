@@ -1,0 +1,93 @@
+<section class="cars">
+  <header class="cars__header">
+    <div>
+      <p class="cars__eyebrow">Frota</p>
+      <h1>Carros disponíveis</h1>
+    </div>
+
+    <!-- O min do browser só ajuda a escolher; as regras a sério estão no dateError e na API -->
+    <form class="cars__dates" (ngSubmit)="search()">
+      <div class="field">
+        <label for="startDate">Início</label>
+        <input id="startDate" name="startDate" type="date" [min]="today" [(ngModel)]="startDate" />
+      </div>
+      <div class="field">
+        <label for="endDate">Fim</label>
+        <input
+          id="endDate"
+          name="endDate"
+          type="date"
+          [min]="startDate() || today"
+          [(ngModel)]="endDate"
+        />
+      </div>
+      <button class="btn btn--primary" type="submit" [disabled]="validDays() === 0 || loading()">
+        Procurar
+      </button>
+    </form>
+  </header>
+
+  @if (dateError(); as message) {
+    <app-alert type="warning" [message]="message" [dismissible]="false" />
+  }
+
+  @if (errorMessage(); as message) {
+    <app-alert type="error" [message]="message" (closed)="errorMessage.set(null)" />
+  }
+
+  @if (validDays() === 0 && !dateError()) {
+    <p class="cars__hint">Escolhe as datas para veres o preço total de cada carro.</p>
+  }
+
+  @if (successMessage(); as message) {
+    <app-alert type="success" [message]="message" (closed)="successMessage.set(null)" />
+  }
+
+  <div class="cars__grid">
+    <!-- track car.id: o Angular reaproveita o cartão de cada carro em vez de redesenhar a lista -->
+    @for (car of cars(); track car.id) {
+      <app-car-card [car]="car" [days]="validDays()" (reserve)="openReservation(car)" />
+    } @empty {
+      <p class="cars__empty">Não há carros disponíveis para estas datas.</p>
+    }
+  </div>
+
+  <!-- A janela só existe no HTML enquanto há um carro escolhido -->
+  @if (selectedCar(); as car) {
+    <app-confirm-modal
+      title="Confirmar reserva"
+      confirmLabel="Confirmar reserva"
+      [loading]="reserving()"
+      [errorMessage]="reservationError()"
+      (confirmed)="confirmReservation(car)"
+      (cancelled)="closeReservation()"
+    >
+      <dl class="summary">
+        <div>
+          <dt>Carro</dt>
+          <dd>{{ car.brand }} {{ car.model }} · {{ car.licensePlate }}</dd>
+        </div>
+        <div>
+          <!-- 'UTC': "2026-12-01" é lido como meia-noite UTC; sem isto, num fuso atrás
+                 de UTC a data aparecia como o dia anterior -->
+          <dt>Datas</dt>
+          <dd>
+            {{ startDate() | date: 'dd/MM/yyyy' : 'UTC' }} a
+            {{ endDate() | date: 'dd/MM/yyyy' : 'UTC' }}
+          </dd>
+        </div>
+        <div>
+          <dt>Dias cobrados</dt>
+          <dd>{{ validDays() }}</dd>
+        </div>
+        <div>
+          <dt>Estimativa</dt>
+          <dd>{{ validDays() * car.dailyPrice | currency: 'EUR' }}</dd>
+        </div>
+      </dl>
+      <p class="summary__note">
+        O dia de devolução não é cobrado. O preço final é o que a API calcular.
+      </p>
+    </app-confirm-modal>
+  }
+</section>

@@ -1,0 +1,113 @@
+/* height: 100% faz todos os cartões da mesma linha terem a mesma altura */
+.car-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform 0.15s,
+    box-shadow 0.15s;
+}
+
+.car-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgb(15 15 26 / 0.1);
+}
+
+/* aspect-ratio reserva o espaço da fotografia: a página não "salta" quando a imagem carrega */
+.car-card__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background:
+    repeating-linear-gradient(135deg, rgb(255 255 255 / 0.04) 0 2px, transparent 2px 14px),
+    var(--color-ink);
+}
+
+/* object-fit: cover enche o espaço sem deformar a fotografia */
+.car-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.car-card__placeholder {
+  position: absolute;
+  bottom: var(--space-3);
+  left: var(--space-4);
+  color: rgb(255 255 255 / 0.9);
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.car-card__category {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+}
+
+.car-card__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.car-card__name {
+  font-size: 20px;
+}
+
+.car-card__name span {
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+/* Matrícula com a faixa azul à esquerda, como as matrículas europeias */
+.car-card__plate {
+  align-self: flex-start;
+  padding: 2px var(--space-2);
+  border: 1px solid var(--color-ink);
+  border-left: 6px solid var(--color-primary);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+}
+
+/* margin-top: auto empurra o preço para o fundo do cartão, alinhado entre cartões */
+.car-card__price {
+  margin: auto 0 0;
+  padding-top: var(--space-2);
+  color: var(--color-muted);
+}
+
+.car-card__price strong {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: 26px;
+}
+
+.car-card__estimate {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  font-size: 14px;
+}
+
+/* O Angular apaga os espaços só entre elementos (</strong> <small>), por isso a margem faz esse espaço */
+.car-card__estimate small {
+  margin-left: var(--space-1);
+  color: var(--color-muted);
+}
+
+.car-card__reserve {
+  width: 100%;
+  margin-top: var(--space-2);
+}
