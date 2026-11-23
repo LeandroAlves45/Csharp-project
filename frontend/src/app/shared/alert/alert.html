@@ -1,0 +1,12 @@
+<!-- A classe da variante (alert--error, ...) só muda as cores, como no .btn -->
+<div [class]="'alert alert--' + type()" [attr.role]="role()">
+  <span class="alert__label">{{ label() }}</span>
+  <p class="alert__message">{{ message() }}</p>
+
+  @if (dismissible()) {
+    <!-- O X não tem texto legível, por isso o aria-label diz ao leitor de ecrã o que faz -->
+    <button type="button" class="alert__close" aria-label="Fechar mensagem" (click)="closed.emit()">
+      ×
+    </button>
+  }
+</div>

@@ -1,4 +1,5 @@
-// Espelho do Car que a API devolve HOJE.
+// Espelho do Car combinado com o Rodrigo. Atenção: a API (20/11) ainda devolve "image";
+// enquanto não mudar para "imageUrl", o frontend usa dados mock nos carros.
 
 export interface Car {
   id: number;

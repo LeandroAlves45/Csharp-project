@@ -1,0 +1,66 @@
+<section class="auth">
+  <div class="auth__intro">
+    <p class="auth__eyebrow">AutoRent</p>
+    <h1 class="auth__title">Escolhe as datas. <span>Segue viagem.</span></h1>
+    <p class="auth__lead">
+      Entra na tua conta para ver os carros disponíveis e gerir as tuas reservas.
+    </p>
+  </div>
+
+  <!-- #loginForm="ngForm": referência ao formulário, para saber se é válido e se já foi submetido -->
+  <form class="auth__card" #loginForm="ngForm" (ngSubmit)="submit(loginForm)">
+    <h2>Entrar</h2>
+
+    <!-- "as message" guarda o valor numa variável: não é preciso o ! -->
+    @if (errorMessage(); as message) {
+      <app-alert type="error" [message]="message" (closed)="errorMessage.set(null)" />
+    }
+
+    <!-- O erro do campo só aparece depois de o utilizador sair do campo ou carregar em Entrar -->
+    <div
+      class="field"
+      [class.field--error]="email.invalid && (email.touched || loginForm.submitted)"
+    >
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        required
+        email
+        [(ngModel)]="form.email"
+        #email="ngModel"
+      />
+      @if (email.invalid && (email.touched || loginForm.submitted)) {
+        <span class="field__error">Escreve um email válido.</span>
+      }
+    </div>
+
+    <div
+      class="field"
+      [class.field--error]="password.invalid && (password.touched || loginForm.submitted)"
+    >
+      <label for="password">Password</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="current-password"
+        required
+        [(ngModel)]="form.password"
+        #password="ngModel"
+      />
+      @if (password.invalid && (password.touched || loginForm.submitted)) {
+        <span class="field__error">Escreve a password.</span>
+      }
+    </div>
+
+    <!-- Desativado durante o pedido: evita dois cliques = dois pedidos -->
+    <button class="btn btn--primary" type="submit" [disabled]="loading()">
+      {{ loading() ? 'A entrar...' : 'Entrar' }}
+    </button>
+
+    <p class="auth__switch">Ainda não tens conta? <a routerLink="/register">Criar conta</a></p>
+  </form>
+</section>
