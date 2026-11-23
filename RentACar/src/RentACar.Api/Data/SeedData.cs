@@ -17,7 +17,7 @@ namespace RentACar.Api.Data
                     LicensePlate = "AA-00-BB",
                     Category = "Economy",
                     DailyPrice = 35.00m,
-                    Image = ""
+                    ImageUrl = ""
                 },
 
                 new Car
@@ -28,7 +28,7 @@ namespace RentACar.Api.Data
                     LicensePlate = "CC-11-DD",
                     Category = "Premium",
                     DailyPrice = 75.00m,
-                    Image = ""
+                    ImageUrl = ""
                 },
 
                 new Car
@@ -39,7 +39,7 @@ namespace RentACar.Api.Data
                     LicensePlate = "EE-22-FF",
                     Category = "Compact",
                     DailyPrice = 45.00m,
-                    Image = ""
+                    ImageUrl = ""
                 },
 
                 new Car
@@ -50,7 +50,7 @@ namespace RentACar.Api.Data
                     LicensePlate = "GG-33-HH",
                     Category = "Premium",
                     DailyPrice = 65.00m,
-                    Image = ""
+                    ImageUrl = ""
                 },
 
                 new Car
@@ -61,7 +61,7 @@ namespace RentACar.Api.Data
                     LicensePlate = "II-44-JJ",
                     Category = "Economy",
                     DailyPrice = 30.00m,
-                    Image = ""
+                    ImageUrl = ""
                 }
             };
         }
