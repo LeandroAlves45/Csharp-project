@@ -1,0 +1,31 @@
+<!-- (close) também dispara com a tecla Esc: tratamos como "Voltar" -->
+<dialog #dialog class="modal" aria-labelledby="modal-title" (close)="cancelled.emit()">
+  <h2 id="modal-title" class="modal__title">{{ title() }}</h2>
+
+  <div class="modal__body">
+    <ng-content />
+  </div>
+
+  @if (errorMessage(); as message) {
+    <app-alert type="error" [message]="message" [dismissible]="false" />
+  }
+
+  <div class="modal__actions">
+    <button
+      class="btn btn--secondary"
+      type="button"
+      [disabled]="loading()"
+      (click)="cancelled.emit()"
+    >
+      Voltar
+    </button>
+    <button
+      class="btn btn--primary"
+      type="button"
+      [disabled]="loading()"
+      (click)="confirmed.emit()"
+    >
+      {{ loading() ? 'A confirmar…' : confirmLabel() }}
+    </button>
+  </div>
+</dialog>

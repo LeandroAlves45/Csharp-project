@@ -70,3 +70,24 @@
   outline: none;
   box-shadow: var(--focus-ring);
 }
+
+/* Telemóvel: marca, links e utilizador não cabem numa linha (a página ficava com 475 px
+   num ecrã de 375 px). flex-wrap deixa a barra ter 2 linhas: marca e utilizador em cima,
+   links em baixo. order só muda a posição no ecrã; no HTML a ordem fica igual. */
+@media (max-width: 600px) {
+  .navbar {
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .navbar__links {
+    order: 3;
+    width: 100%;
+  }
+
+  /* "As minhas reservas" não parte em 3 linhas */
+  .navbar__links a {
+    white-space: nowrap;
+  }
+}

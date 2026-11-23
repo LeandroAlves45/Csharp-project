@@ -1,0 +1,41 @@
+<article class="car-card">
+  <div class="car-card__media">
+    @if (car().imageUrl) {
+      <img [src]="car().imageUrl" [alt]="car().brand + ' ' + car().model" />
+    } @else {
+      <!-- Ainda sem fotografias (S2-11): a marca ocupa o espaço, para o cartão não ficar vazio -->
+      <span class="car-card__placeholder" aria-hidden="true">{{ car().brand }}</span>
+    }
+    <span class="tag tag--accent car-card__category">{{ categoryLabel() }}</span>
+  </div>
+
+  <div class="car-card__body">
+    <h3 class="car-card__name">
+      {{ car().brand }} <span>{{ car().model }}</span>
+    </h3>
+    <span class="car-card__plate">{{ car().licensePlate }}</span>
+
+    <p class="car-card__price">
+      <strong>{{ car().dailyPrice | currency: 'EUR' }}</strong> / dia
+    </p>
+
+    @if (days() > 0) {
+      <p class="car-card__estimate">
+        {{ days() }} {{ days() === 1 ? 'dia' : 'dias' }} ·
+        <strong>{{ estimate() | currency: 'EUR' }}</strong>
+        <small>estimativa</small>
+      </p>
+    }
+
+    <!-- Sem datas válidas não há o que reservar; o aria-label diz ao leitor de ecrã qual é o carro -->
+    <button
+      class="btn btn--primary car-card__reserve"
+      type="button"
+      [disabled]="days() === 0"
+      [attr.aria-label]="'Reservar ' + car().brand + ' ' + car().model"
+      (click)="reserve.emit()"
+    >
+      Reservar
+    </button>
+  </div>
+</article>

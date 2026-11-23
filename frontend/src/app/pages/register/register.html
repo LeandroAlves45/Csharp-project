@@ -1,0 +1,80 @@
+<section class="auth">
+  <div class="auth__intro">
+    <p class="auth__eyebrow">AutoRent</p>
+    <h1 class="auth__title">Uma conta. <span>Todas as viagens.</span></h1>
+    <p class="auth__lead">Cria a tua conta para reservar carros e acompanhar as tuas reservas.</p>
+  </div>
+
+  <form class="auth__card" #registerForm="ngForm" (ngSubmit)="submit(registerForm)">
+    <h2>Criar conta</h2>
+
+    @if (errorMessage(); as message) {
+      <app-alert type="error" [message]="message" (closed)="errorMessage.set(null)" />
+    }
+
+    <div
+      class="field"
+      [class.field--error]="name.invalid && (name.touched || registerForm.submitted)"
+    >
+      <label for="name">Nome</label>
+      <input
+        id="name"
+        name="name"
+        autocomplete="name"
+        required
+        [(ngModel)]="form.name"
+        #name="ngModel"
+      />
+      @if (name.invalid && (name.touched || registerForm.submitted)) {
+        <span class="field__error">Escreve o teu nome.</span>
+      }
+    </div>
+
+    <div
+      class="field"
+      [class.field--error]="email.invalid && (email.touched || registerForm.submitted)"
+    >
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        required
+        email
+        [(ngModel)]="form.email"
+        #email="ngModel"
+      />
+      @if (email.invalid && (email.touched || registerForm.submitted)) {
+        <span class="field__error">Escreve um email válido.</span>
+      }
+    </div>
+
+    <!-- minlength="6" é a mesma regra da API: o utilizador vê o erro antes de enviar -->
+    <div
+      class="field"
+      [class.field--error]="password.invalid && (password.touched || registerForm.submitted)"
+    >
+      <label for="password">Password</label>
+      <input
+        id="password"
+        name="password"
+        type="password"
+        autocomplete="new-password"
+        required
+        minlength="6"
+        [(ngModel)]="form.password"
+        #password="ngModel"
+      />
+      @if (password.invalid && (password.touched || registerForm.submitted)) {
+        <span class="field__error">A password tem de ter pelo menos 6 caracteres.</span>
+      }
+    </div>
+
+    <button class="btn btn--primary" type="submit" [disabled]="loading()">
+      {{ loading() ? 'A criar conta...' : 'Criar conta' }}
+    </button>
+
+    <p class="auth__switch">Já tens conta? <a routerLink="/login">Entrar</a></p>
+  </form>
+</section>
