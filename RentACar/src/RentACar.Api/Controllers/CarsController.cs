@@ -1,6 +1,5 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
-using RentACar.Api.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using RentACar.Api.DTOs;
 using RentACar.Api.Services;
 
 namespace RentACar.Api.Controllers
@@ -17,17 +16,20 @@ namespace RentACar.Api.Controllers
         }
 
         // GET: api/cars
+        // GET: api/cars?startDate=2026-12-01&endDate=2026-12-05
         [HttpGet]
-        public ActionResult<List<Car>> GetAllCars()
+        public ActionResult<List<CarResponse>> GetAllCars(
+            [FromQuery] DateOnly? startDate,
+            [FromQuery] DateOnly? endDate)
         {
-            var cars = _carService.GetAllCars();
+            var cars = _carService.GetAllCars(startDate, endDate);
 
             return Ok(cars);
         }
 
         // GET: api/cars/1
         [HttpGet("{id:int}")]
-        public ActionResult<Car> GetCarById(int id)
+        public ActionResult<CarResponse> GetCarById(int id)
         {
             var car = _carService.GetCarById(id);
 

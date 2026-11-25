@@ -14,6 +14,6 @@ namespace RentACar.Api.Models
 
         public decimal DailyPrice { get; set; }
         
-        public string Image {  get; set; }
+        public string ImageUrl {  get; set; }
     }
 }
