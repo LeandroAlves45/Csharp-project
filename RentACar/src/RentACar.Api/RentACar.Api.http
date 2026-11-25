@@ -63,4 +63,15 @@ Content-Type: application/json
     "password": "Teste123"
 }
 
-###
+### TESTE 8 - Criar reserva
+
+POST http://localhost:5000/api/reservations
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "carId": 1,
+  "startDate": "2026-12-01",
+  "endDate": "2026-12-05"
+}-05"
+}

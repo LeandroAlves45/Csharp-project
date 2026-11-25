@@ -33,7 +33,7 @@ builder.Services.AddScoped<AuthService, AuthServiceUI>();
 
 // Reservation - Dependências das reservas
 builder.Services.AddSingleton<IReservationRepository, InMemoryReservationRepository>();
-builder.Services.AddScoped<ReservationService>();
+builder.Services.AddScoped<ReservationServices>();
 
 // Carros: mesma lógica de tempos de vida.
 // CarService fica registado como classe concreta até o Rodrigo criar o ICarService

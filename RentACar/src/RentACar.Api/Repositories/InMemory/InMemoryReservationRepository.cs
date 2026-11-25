@@ -13,7 +13,7 @@ namespace RentACar.Api.Repositories.InMemory
         }
         public List<Reservation> GetAll()
         {
-            return _reservations;
+            return new List<Reservation>(_reservations);
         }
         public Reservation? GetById(int id)
         {
