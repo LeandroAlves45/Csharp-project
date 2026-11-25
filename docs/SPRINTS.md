@@ -18,6 +18,8 @@ Prazo de entrega e apresentação: **sexta-feira, 27/11/2026**.
 
 O fim de semana está no Sprint 1 mas foi planeado com pouca disponibilidade. Quem tiver mais tempo adianta tarefas.
 
+Alteração de 19/11: o frontend arranca já no Sprint 0, com dados mock (falsos) nos serviços Angular. Quando os endpoints estiverem prontos, os mocks são trocados por pedidos reais à API. Assim o frontend não fica todo concentrado no Sprint 2.
+
 ## 2. Cerimónias
 
 | Cerimónia | Quando | Duração | O que se faz |
@@ -36,11 +38,20 @@ O fim de semana está no Sprint 1 mas foi planeado com pouca disponibilidade. Qu
 
 ## 4. Regras de Git
 
-Cada pessoa trabalha na sua branch: `Bruno`, `Leandro`, `Pedro`, `Rodrigo`.
+Cada área tem a sua branch, com o nome da função e não da pessoa:
+
+| Branch | Área | Dono |
+| --- | --- | --- |
+| `auth` | Utilizadores e autenticação | Pedro |
+| `cars` | Carros | Rodrigo |
+| `reservations` | Reservas | Bruno |
+| `frontend` | Frontend Angular | Leandro |
+
+Porquê: o nome diz o que a branch contém, e o histórico do Git fica legível mesmo para quem não conhece a equipa.
 
 1. O `main` está sempre a compilar e a funcionar. Ninguém faz push direto para o `main`.
-2. Todos os dias, antes de começar, cada um traz o `main` para a sua branch (`git merge main`). Branches por pessoa tendem a afastar-se do `main`, e isto evita conflitos grandes no fim.
-3. Quando uma funcionalidade fica pronta, abre-se um pull request da branch pessoal para o `main`. Pull requests pequenos e frequentes, não um enorme no fim do sprint.
+2. Todos os dias, antes de começar, cada um traz o `main` para a sua branch (`git merge main`). Branches de longa duração tendem a afastar-se do `main`, e isto evita conflitos grandes no fim.
+3. Quando uma funcionalidade fica pronta, abre-se um pull request da branch da área para o `main`. Pull requests pequenos e frequentes, não um enorme no fim do sprint.
 4. Cada pull request precisa da aprovação de pelo menos um colega.
 5. Antes de abrir um pull request: `dotnet build` e `dotnet test` sem erros.
 6. Mensagens de commit curtas, em inglês, a dizer o que muda. Exemplo: `Add overlap rule to reservation service`.
@@ -66,8 +77,8 @@ Os comandos estão em `docs/COMMANDS.md`, secção 2.
 
 | ID | Tarefa | Responsável | Estado |
 | --- | --- | --- | --- |
-| S1-01 | Exceções próprias e handler global com os códigos de `ARCHITECTURE.md`, secção 8 | Leandro | |
-| S1-02 | Registo das dependências no `Program.cs` (repositórios em memória como Singleton) | Leandro | |
+| S1-01 | Exceções próprias e handler global com os códigos de `ARCHITECTURE.md`, secção 8 | Leandro | Feito (19/11). Falta cada área trocar as suas exceções |
+| S1-02 | Registo das dependências no `Program.cs` (repositórios em memória como Singleton) | Leandro | Feito (19/11) |
 | S1-03 | Método da regra de sobreposição (prioridade, primeiro dia) | Bruno | |
 | S1-04 | `Reservation`, `ReservationStatus` e repositório em memória | Bruno | |
 | S1-05 | Criar reserva com regras R1 a R5 | Bruno | |
@@ -78,7 +89,7 @@ Os comandos estão em `docs/COMMANDS.md`, secção 2.
 | S1-10 | Registo com validação de dados e email único | Pedro | |
 | S1-11 | Login e `AuthController` | Pedro | |
 | S1-12 | Testes de autenticação | Pedro | |
-| S1-13 | `Car`, seed dos carros e repositório em memória | Rodrigo | |
+| S1-13 | `Car` com `ImageUrl`, seed dos carros e repositório em memória | Rodrigo | |
 | S1-14 | Pesquisa por disponibilidade (reutiliza a regra de sobreposição) e `CarsController` | Rodrigo | |
 | S1-15 | Testes da pesquisa por disponibilidade | Rodrigo | |
 | S1-16 | Review do Sprint 1 com demo e retrospetiva escrita | Todos | |
@@ -87,13 +98,14 @@ Os comandos estão em `docs/COMMANDS.md`, secção 2.
 
 | ID | Tarefa | Responsável | Estado |
 | --- | --- | --- | --- |
-| S2-01 | Criar o projeto Angular, rotas, `HttpClient` e URL da API | Leandro | |
-| S2-02 | Ativar CORS no backend para `http://localhost:4200` | Leandro | |
-| S2-03 | Ecrãs de Login e Registo e serviço de autenticação | Leandro | |
-| S2-04 | Ecrã de Carros disponíveis com reserva | Leandro | |
-| S2-05 | Ecrã As minhas reservas com cancelamento | Leandro | |
+| S2-01 | Criar o projeto Angular, rotas, `HttpClient`, URL da API e variáveis CSS do layout AutoRent | Leandro | Feito (20/11): `HttpClient` adicionado |
+| S2-02 | Ativar CORS no backend para `http://localhost:4200` | Leandro | Feito (19/11) |
+| S2-03 | Ecrãs de Login e Registo e serviço de autenticação | Leandro | Feito (20/11), ligado à API real |
+| S2-04 | Ecrã de Carros disponíveis com reserva | Leandro | Feito com mock (23/11); falta ligar à API quando o filtro por datas, o `imageUrl` e os erros das reservas estiverem corrigidos |
+| S2-05 | Ecrã As minhas reservas com cancelamento | Leandro | Feito com mock (23/11); falta ligar à API e o `status` vir como texto |
 | S2-06 | Testar a integração de cada área no frontend e corrigir erros da API | Pedro, Rodrigo, Bruno | |
 | S2-07 | Extras escolhidos na review do Sprint 1 | A definir | |
+| S2-11 | Fotografias dos carros em `frontend/public/images/cars/`, com os mesmos nomes do seed | Rodrigo e Leandro | |
 | S2-08 | Relatório de 2 a 4 páginas (cada um escreve a sua secção) | Todos | |
 | S2-09 | Guião da demo e divisão da apresentação | Todos | |
 | S2-10 | Code freeze e verificação final do README | Leandro | |
@@ -106,6 +118,7 @@ Só entram depois do núcleo concluído. A escolha é feita na review do Sprint 
 | --- | --- | --- |
 | `GET /api/reservations/{id}` | Baixa | Bruno |
 | Resumo: total de reservas ativas e faturação | Baixa | Bruno |
+| Página Not Found personalizada | Baixa | Leandro |
 | Persistência com EF Core e SQLite | Média | Leandro |
 | Autenticação com JWT | Alta | Pedro |
 

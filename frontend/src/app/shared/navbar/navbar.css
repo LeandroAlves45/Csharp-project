@@ -1,0 +1,93 @@
+/* Estilos só desta barra: o Angular isola-os, por isso não afetam outros componentes */
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-4) var(--space-8);
+  background: var(--color-ink);
+  color: #ffffff;
+}
+
+.navbar__brand {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+/* Lima sobre fundo tinta tem contraste alto, por isso aqui pode ser cor de texto */
+.navbar__brand span {
+  color: var(--color-accent);
+}
+
+.navbar__links {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.navbar__links a {
+  padding-bottom: var(--space-1);
+  border-bottom: 2px solid transparent;
+  color: rgb(255 255 255 / 0.7);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.navbar__links a:hover {
+  color: #ffffff;
+}
+
+/* Página atual: sublinhado lima, para se saber onde se está sem ler o título */
+.navbar__links a.is-active {
+  color: #ffffff;
+  border-bottom-color: var(--color-accent);
+}
+
+/* margin-left: auto empurra o bloco do utilizador para a direita */
+.navbar__user {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-left: auto;
+}
+
+.navbar__logout {
+  padding: var(--space-1) var(--space-4);
+  border: 1px solid rgb(255 255 255 / 0.3);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.navbar__logout:hover {
+  border-color: #ffffff;
+}
+
+.navbar a:focus-visible,
+.navbar__logout:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Telemóvel: marca, links e utilizador não cabem numa linha (a página ficava com 475 px
+   num ecrã de 375 px). flex-wrap deixa a barra ter 2 linhas: marca e utilizador em cima,
+   links em baixo. order só muda a posição no ecrã; no HTML a ordem fica igual. */
+@media (max-width: 600px) {
+  .navbar {
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .navbar__links {
+    order: 3;
+    width: 100%;
+  }
+
+  /* "As minhas reservas" não parte em 3 linhas */
+  .navbar__links a {
+    white-space: nowrap;
+  }
+}

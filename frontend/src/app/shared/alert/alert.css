@@ -1,0 +1,86 @@
+/* Faixa colorida dentro da página (design AutoRent v2) */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-left: 4px solid var(--alert-strong);
+  border-radius: var(--radius-sm);
+  background: var(--alert-soft);
+  color: var(--color-ink);
+  box-shadow: var(--shadow-sm);
+  animation: alert-in 0.2s ease-out;
+}
+
+/* Cada variante só define 2 variáveis locais; o resto do CSS é igual para as 3.
+   Para criar uma variante nova bastam 2 linhas. */
+.alert--success {
+  --alert-strong: var(--color-success);
+  --alert-soft: var(--color-success-bg);
+}
+
+.alert--error {
+  --alert-strong: var(--color-danger);
+  --alert-soft: var(--color-danger-bg);
+}
+
+.alert--warning {
+  --alert-strong: var(--color-warning);
+  --alert-soft: var(--color-warning-bg);
+}
+
+/* Etiqueta em mono, como as matrículas: texto branco sobre a cor forte tem contraste suficiente */
+.alert__label {
+  flex-shrink: 0;
+  margin-top: 2px;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--alert-strong);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* flex: 1 ocupa o espaço livre e empurra o X para a direita */
+.alert__message {
+  flex: 1;
+  margin: 0;
+}
+
+.alert__close {
+  padding: 0 var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.alert__close:hover {
+  color: var(--color-ink);
+}
+
+.alert__close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Entrada curta: o olho percebe que apareceu algo novo sem distrair */
+@keyframes alert-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* Quem pede menos movimento no sistema operativo não vê a animação */
+@media (prefers-reduced-motion: reduce) {
+  .alert {
+    animation: none;
+  }
+}

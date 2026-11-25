@@ -1,0 +1,91 @@
+<section class="reservations">
+  <header>
+    <p class="reservations__eyebrow">Conta</p>
+    <h1>As minhas reservas</h1>
+  </header>
+
+  @if (errorMessage(); as message) {
+    <app-alert type="error" [message]="message" (closed)="errorMessage.set(null)" />
+  }
+
+  @if (successMessage(); as message) {
+    <app-alert type="success" [message]="message" (closed)="successMessage.set(null)" />
+  }
+
+  <!-- A mensagem de vazio só aparece depois de carregar, para não "piscar" no arranque -->
+  @if (loading() && sorted().length === 0) {
+    <p class="reservations__muted">A carregar reservas…</p>
+  } @else if (sorted().length === 0) {
+    <div class="reservations__empty">
+      <p>Ainda não tens reservas.</p>
+      <a class="btn btn--primary" routerLink="/cars">Ver carros</a>
+    </div>
+  } @else {
+    <!-- O contentor faz scroll na horizontal em ecrãs estreitos, em vez de a página toda -->
+    <div class="reservations__table-wrap">
+      <table class="reservations__table">
+        <thead>
+          <tr>
+            <th scope="col">N.º</th>
+            <th scope="col">Carro</th>
+            <th scope="col">Datas</th>
+            <th scope="col">Total</th>
+            <th scope="col">Estado</th>
+            <th scope="col"><span class="visually-hidden">Ações</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (reservation of sorted(); track reservation.id) {
+            <tr [class.is-cancelled]="reservation.status === 'Cancelled'">
+              <td class="reservations__id">{{ reservation.id }}</td>
+              <td>{{ carNames().get(reservation.carId) ?? 'Carro ' + reservation.carId }}</td>
+              <td>
+                {{ reservation.startDate | date: 'dd/MM/yyyy' : 'UTC' }} a
+                {{ reservation.endDate | date: 'dd/MM/yyyy' : 'UTC' }}
+              </td>
+              <td>{{ reservation.totalPrice | currency: 'EUR' }}</td>
+              <td>
+                @if (reservation.status === 'Active') {
+                  <span class="status status--active">Ativa</span>
+                } @else {
+                  <span class="status">Cancelada</span>
+                }
+              </td>
+              <td class="reservations__actions">
+                <!-- Só as ativas têm botão (C2). A data limite (C3) é a API que valida -->
+                @if (reservation.status === 'Active') {
+                  <button
+                    class="btn btn--secondary"
+                    type="button"
+                    (click)="openCancel(reservation)"
+                  >
+                    Cancelar
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @if (selected(); as reservation) {
+    <app-confirm-modal
+      title="Cancelar reserva"
+      confirmLabel="Cancelar reserva"
+      [loading]="cancelling()"
+      [errorMessage]="cancelError()"
+      (confirmed)="confirmCancel(reservation)"
+      (cancelled)="closeCancel()"
+    >
+      <p class="reservations__question">
+        Cancelar a reserva n.º {{ reservation.id }} do
+        <strong>{{ carNames().get(reservation.carId) ?? 'Carro ' + reservation.carId }}</strong>, de
+        {{ reservation.startDate | date: 'dd/MM/yyyy' : 'UTC' }} a
+        {{ reservation.endDate | date: 'dd/MM/yyyy' : 'UTC' }}?
+      </p>
+      <p class="reservations__muted">Só podes cancelar até ao dia anterior ao início da reserva.</p>
+    </app-confirm-modal>
+  }
+</section>

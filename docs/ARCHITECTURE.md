@@ -122,10 +122,21 @@ Convenção de nomes:
 | Entidade | Campos | Notas |
 | --- | --- | --- |
 | `User` | `Id`, `Name`, `Email`, `PasswordHash`, `CreatedAt` | Email único. A password nunca é guardada em texto. |
-| `Car` | `Id`, `Brand`, `Model`, `LicensePlate`, `Category`, `DailyPrice` | Carregados no arranque (seed). Não há endpoint para criar carros. |
+| `Car` | `Id`, `Brand`, `Model`, `LicensePlate`, `Category`, `DailyPrice`, `ImageUrl` | Carregados no arranque (seed). Não há endpoint para criar carros. `ImageUrl` é o caminho da fotografia (ver secção 5.1). |
 | `Reservation` | `Id`, `UserId`, `CarId`, `StartDate`, `EndDate`, `TotalPrice`, `Status`, `CreatedAt`, `CancelledAt` | `Status` é o enum `ReservationStatus` com `Active` e `Cancelled`. Datas em `DateOnly`. |
 
 As datas de reserva usam `DateOnly` porque o aluguer é ao dia. Não precisamos de horas.
+
+### 5.1 Fotografias dos carros
+
+Proposta, a confirmar com o Rodrigo:
+
+- As fotografias ficam no frontend, em `frontend/public/images/cars/`, e são servidas pelo Angular.
+- O backend guarda só o caminho relativo em `ImageUrl`, por exemplo `/images/cars/volkswagen-golf.jpg`.
+- Os nomes dos ficheiros no seed do Rodrigo têm de ser iguais aos ficheiros na pasta do frontend.
+- Usar fotografias com licença que permita uso gratuito, e anotar a origem no README.
+
+Porquê assim: a demo funciona sem internet, não há pedidos a sites externos e a API continua a devolver só dados.
 
 ## 6. Endpoints
 
@@ -188,7 +199,20 @@ Esta regra é usada em dois sítios: ao criar uma reserva (Bruno) e ao listar ca
 
 Evitámos o nome `ValidationException` porque já existe uma classe com esse nome no .NET (`System.ComponentModel.DataAnnotations`), o que causaria ambiguidades. Os nomes das exceções são uma proposta do Leandro, que é o responsável por esta parte. Se mudarem, este quadro tem de ser atualizado.
 
+As mensagens das exceções são escritas em português (por exemplo "Email ou password incorretos"), porque o frontend mostra-as diretamente ao utilizador. O código e os nomes continuam em inglês.
+
 Porque 409 e não 400 quando o carro está ocupado? Porque o pedido está bem formado. O problema é o conflito com o estado atual do sistema.
+
+### 8.1 Como está implementado
+
+- As exceções e o handler estão na pasta `Exceptions/`. O handler é a classe `GlobalExceptionHandler` (interface `IExceptionHandler` do ASP.NET Core) e está registado no `Program.cs` com `AddProblemDetails()`, `AddExceptionHandler<GlobalExceptionHandler>()` e `app.UseExceptionHandler()`.
+- A mensagem da exceção vai no campo `detail` do `ProblemDetails`. O frontend mostra sempre esse campo ao utilizador. Exemplo de resposta:
+
+  ```json
+  { "status": 409, "title": "Conflict", "detail": "A reserva conflita com uma reserva existente." }
+  ```
+
+- Uma exceção que não seja uma das cinco acima (por exemplo `ArgumentException` ou um erro de programação) dá **500** com um `ProblemDetails` genérico, sem a mensagem nem a stack trace. Assim, um erro inesperado nunca mostra detalhes internos ao cliente. Por isso, as regras de negócio têm de lançar sempre uma das cinco exceções.
 
 ## 9. Autenticação
 
@@ -207,6 +231,26 @@ Escolhemos o login simples (opção B): o login valida email e password e devolv
 - Um serviço Angular por área (auth, cars, reservations), todos com `HttpClient`.
 - O id do utilizador fica no `localStorage` depois do login.
 - O backend tem de ativar CORS para `http://localhost:4200`, o endereço do `ng serve`.
+
+### 10.1 Layout e rotas
+
+Nome da aplicação: **AutoRent**. Interface em português, pensada para computador. O layout de referência é feito no Claude Design e os valores de cores, tipos de letra e espaçamentos passam para variáveis CSS no `styles.css`.
+
+| Rota | Ecrã | Acesso |
+| --- | --- | --- |
+| `/login` | Login | Público |
+| `/register` | Registo | Público |
+| `/cars` | Carros disponíveis: escolher datas, ver cartões com fotografia, reservar numa janela de confirmação | Só com login |
+| `/my-reservations` | As minhas reservas: tabela com estado e botão Cancelar nas ativas | Só com login |
+| `/` | Redireciona para `/cars` | |
+| `**` | Página Not Found personalizada (extra, se houver tempo) | |
+
+Decisões de interface:
+
+- Barra de navegação no topo, com AutoRent, Carros, As minhas reservas, nome do utilizador e Sair. Nos ecrãs de login e registo só mostra o nome.
+- A reserva é confirmada numa janela (modal) com carro, datas, número de dias e estimativa do preço. O preço final é sempre o que a API devolve (regra R5).
+- Mensagens de sucesso e de erro numa faixa colorida dentro da página. As mensagens de erro são as que a API devolve.
+- O botão Cancelar só aparece nas reservas ativas. A regra C3 é validada pela API.
 
 ## 11. Dados em duas fases
 

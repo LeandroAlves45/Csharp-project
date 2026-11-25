@@ -1,0 +1,279 @@
+/* =========================================================
+   1. TOKENS
+   Valores do design num só sítio: mudar uma cor aqui muda a app inteira.
+   ========================================================= */
+:root {
+  /* Cores confirmadas no AutoRent v2 */
+  --color-primary: #3d3bf3;
+  --color-accent: #d4ff3a;
+  --color-ink: #0f0f1a;
+  --color-bg: #f4f4f8;
+
+  /* Cores de apoio */
+  --color-surface: #ffffff;
+  --color-primary-hover: #2d2bd9; /* PROVISÓRIO */
+  --color-muted: #6b6b80; /* PROVISÓRIO */
+  --color-border: #dcdce6; /* PROVISÓRIO */
+  --color-danger: #d93636; /* PROVISÓRIO */
+  --color-danger-bg: #fdecec; /* PROVISÓRIO */
+  --color-success: #17703d; /* PROVISÓRIO */
+  --color-success-bg: #e8f6ee; /* PROVISÓRIO */
+  --color-warning: #8a5300; /* PROVISÓRIO */
+  --color-warning-bg: #fff4e0; /* PROVISÓRIO */
+
+  /* Tipografia: o fallback garante texto legível se o Google Fonts falhar (demo offline) */
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Espaçamentos em escala de 4px: valores previsíveis evitam números soltos pelo CSS */
+  --space-1: 4px; /* PROVISÓRIO */
+  --space-2: 8px; /* PROVISÓRIO */
+  --space-3: 12px; /* PROVISÓRIO */
+  --space-4: 16px; /* PROVISÓRIO */
+  --space-6: 24px; /* PROVISÓRIO */
+  --space-8: 32px; /* PROVISÓRIO */
+
+  --radius-sm: 8px; /* PROVISÓRIO */
+  --radius-md: 12px; /* PROVISÓRIO */
+  --radius-pill: 999px; /* valor enorme = cantos sempre totalmente redondos */
+
+  --shadow-sm: 0 1px 2px rgb(15 15 26 / 0.08); /* PROVISÓRIO */
+  --focus-ring: 0 0 0 3px rgb(61 59 243 / 0.35); /* primária transparente */
+}
+
+/* =========================================================
+     2. BASE
+     ========================================================= */
+
+/* border-box: o padding conta dentro da largura, por isso width: 100% não transborda */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  line-height: 1.15;
+}
+
+/* Inputs e botões não herdam a fonte por omissão; isto mantém a tipografia igual em todo o lado */
+button,
+input,
+select {
+  font: inherit;
+}
+
+/* =========================================================
+     3. BOTÕES (.btn + modificador)
+     A base tem o que é comum; o modificador (--primary...) só muda as cores.
+     ========================================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+
+/* :focus-visible só aparece na navegação por teclado, não no clique do rato */
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--color-primary);
+  color: #ffffff;
+}
+
+/* :not(:disabled) evita que um botão desativado reaja ao hover */
+.btn--primary:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.btn--secondary {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  color: var(--color-ink);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  border-color: var(--color-ink);
+}
+
+.btn--danger {
+  background: var(--color-danger);
+  color: #ffffff;
+}
+
+/* =========================================================
+     4. CAMPOS DE FORMULÁRIO (.field)
+     O template decide quando há erro (adiciona .field--error); o CSS só mostra o estado.
+     ========================================================= */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.field label {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.field input:focus-visible,
+.field select:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: var(--focus-ring);
+}
+
+/* A mensagem de erro só existe no HTML quando há erro, por isso não precisa de display: none */
+.field__error {
+  color: var(--color-danger);
+  font-size: 13px;
+}
+
+.field--error input,
+.field--error select {
+  border-color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+/* =========================================================
+     5. ETIQUETAS (.tag)
+     Pílulas pequenas, por exemplo a categoria do carro.
+     ========================================================= */
+.tag {
+  display: inline-block;
+  padding: 2px var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Lima com texto branco não se lê: o texto em cima do destaque é sempre --color-ink (regra do design) */
+.tag--accent {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-ink);
+}
+
+/* =========================================================
+     6. PÁGINAS DE AUTENTICAÇÃO (.auth)
+     Login e registo partilham o mesmo layout: fica aqui uma vez, não duas.
+     ========================================================= */
+.auth {
+  display: grid;
+  grid-template-columns: 1fr minmax(320px, 420px);
+  gap: var(--space-8);
+  align-items: center;
+  max-width: 960px;
+  margin: var(--space-8) auto 0;
+}
+
+.auth__eyebrow {
+  margin: 0 0 var(--space-3);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.auth__title {
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+/* Marcador lima por baixo do texto: o texto fica tinta, como manda a regra do destaque */
+.auth__title span {
+  background: linear-gradient(transparent 62%, var(--color-accent) 62%);
+}
+
+.auth__lead {
+  max-width: 36ch;
+  margin: var(--space-4) 0 0;
+  color: var(--color-muted);
+  font-size: 18px;
+}
+
+.auth__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-8);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.auth__card .btn {
+  width: 100%;
+  margin-top: var(--space-2);
+}
+
+.auth__switch {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.auth__switch a {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* Ecrã estreito: o texto fica por cima do formulário em vez de ao lado */
+@media (max-width: 760px) {
+  .auth {
+    grid-template-columns: 1fr;
+  }
+
+  .auth__title {
+    font-size: 40px;
+  }
+}
