@@ -1,5 +1,7 @@
-﻿
+
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using RentACar.Api.Models;
 using RentACar.Api.Repositories;
 using RentACar.Api.Exceptions;
@@ -26,14 +28,15 @@ namespace RentACar.Api.Services
         {
             var reservations = _reservationRepository.GetAll();
 
-            var userReservations = reservations
+            return reservations
                 .Where(r => r.UserId == userId)
                 .ToList();
-
-            return userReservations;
         }
 
-        public bool IsCarAvailable(int carId, DateOnly startDate, DateOnly endDate)
+        public bool IsCarAvailable(
+            int carId,
+            DateOnly startDate,
+            DateOnly endDate)
         {
             var existingReservations = _reservationRepository.GetAll();
 
@@ -57,39 +60,52 @@ namespace RentACar.Api.Services
 
             if (car == null)
             {
-                throw new NotFoundException("O carro selecionado não existe.");
+                throw new NotFoundException(
+                    "O carro selecionado não existe.");
             }
 
             var user = _userRepository.GetById(reservation.UserId);
 
             if (user == null)
             {
-                throw new NotFoundException("O utilizador selecionado não existe.");
+                throw new NotFoundException(
+                    "O utilizador selecionado não existe.");
             }
 
-            if (reservation.StartDate < DateOnly.FromDateTime(DateTime.Today))
+            if (reservation.StartDate <
+                DateOnly.FromDateTime(DateTime.Today))
             {
-                throw new BadRequestException("A data de início não pode estar no passado.");
+                throw new BadRequestException(
+                    "A data de início não pode estar no passado.");
             }
 
             if (reservation.EndDate <= reservation.StartDate)
             {
-                throw new BadRequestException("A data de fim tem de ser posterior à data de início.");
+                throw new BadRequestException(
+                    "A data de fim tem de ser posterior à data de início.");
             }
 
-            int rentalDays = reservation.EndDate.DayNumber - reservation.StartDate.DayNumber;
+            int rentalDays =
+                reservation.EndDate.DayNumber -
+                reservation.StartDate.DayNumber;
 
             if (rentalDays > 30)
             {
-                throw new BadRequestException("A reserva não pode exceder 30 dias.");
+                throw new BadRequestException(
+                    "A reserva não pode exceder 30 dias.");
             }
 
-            if (!IsCarAvailable(reservation.CarId, reservation.StartDate, reservation.EndDate))
+            if (!IsCarAvailable(
+                reservation.CarId,
+                reservation.StartDate,
+                reservation.EndDate))
             {
-                throw new ConflictException("O carro não está disponível para estas datas.");
+                throw new ConflictException(
+                    "O carro não está disponível para estas datas.");
             }
 
-            var existingReservations = _reservationRepository.GetAll();
+            var existingReservations =
+                _reservationRepository.GetAll();
 
             reservation.TotalPrice = car.DailyPrice * rentalDays;
             reservation.Status = ReservationStatus.Active;
@@ -105,26 +121,32 @@ namespace RentACar.Api.Services
 
         public void CancelReservation(int reservationId, int userId)
         {
-            var reservation = _reservationRepository.GetById(reservationId);
+            var reservation =
+                _reservationRepository.GetById(reservationId);
 
             if (reservation == null)
             {
-                throw new NotFoundException("A reserva não existe.");
+                throw new NotFoundException(
+                    "A reserva não existe.");
             }
 
             if (reservation.UserId != userId)
             {
-                throw new ForbiddenException("O utilizador não tem permissão para cancelar esta reserva.");
+                throw new ForbiddenException(
+                    "O utilizador não tem permissão para cancelar esta reserva.");
             }
 
             if (reservation.Status == ReservationStatus.Cancelled)
             {
-                throw new ConflictException("A reserva já foi cancelada.");
+                throw new ConflictException(
+                    "A reserva já foi cancelada.");
             }
 
-            if (reservation.StartDate <= DateOnly.FromDateTime(DateTime.Today).AddDays(1))
+            if (reservation.StartDate <=
+                DateOnly.FromDateTime(DateTime.Today).AddDays(1))
             {
-                throw new ConflictException("A reserva não pode ser cancelada no dia anterior ou no próprio dia de início.");
+                throw new ConflictException(
+                    "A reserva não pode ser cancelada no dia anterior ou no próprio dia de início.");
             }
 
             reservation.Status = ReservationStatus.Cancelled;
@@ -132,4 +154,3 @@ namespace RentACar.Api.Services
         }
     }
 }
-
