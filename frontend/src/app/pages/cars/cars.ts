@@ -5,8 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { getErrorMessage } from '../../core/http-error';
 import { Car } from '../../core/models/car';
 import { Reservation } from '../../core/models/reservation';
-import { rentalDays, todayIso } from '../../core/rental';
+import { rentalDays, tomorrowIso } from '../../core/rental';
 import { AuthService } from '../../core/services/auth.service';
+import { CarSearchService } from '../../core/services/car-search.service';
 import { CarsService } from '../../core/services/cars.service';
 import { ReservationsService } from '../../core/services/reservations.service';
 import { Alert } from '../../shared/alert/alert';
@@ -27,13 +28,16 @@ export class Cars {
   private readonly carsService = inject(CarsService);
   private readonly reservationsService = inject(ReservationsService);
   private readonly auth = inject(AuthService);
+  private readonly search = inject(CarSearchService);
   private readonly locale = inject(LOCALE_ID);
 
-  protected readonly today = todayIso();
+  // Primeiro dia que se pode reservar: amanhã
+  protected readonly minDate = tomorrowIso();
 
-  // Datas da PESQUISA: só filtram a lista de carros
-  protected readonly startDate = signal('');
-  protected readonly endDate = signal('');
+  // Datas da PESQUISA: vêm do CarSearchService, por isso não se perdem
+  // quando se vai a "As minhas reservas" e se volta
+  protected readonly startDate = this.search.startDate;
+  protected readonly endDate = this.search.endDate;
 
   protected readonly cars = signal<Car[]>([]);
   protected readonly errorMessage = signal<string | null>(null);
@@ -45,7 +49,7 @@ export class Cars {
   protected readonly reservationError = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
-  // NOVO: datas da RESERVA, escolhidas dentro da janela
+  // Datas da RESERVA, escolhidas dentro da janela
   protected readonly reservationStart = signal('');
   protected readonly reservationEnd = signal('');
 
@@ -54,6 +58,9 @@ export class Cars {
 
   protected readonly availability = signal<AvailabilityState>('idle');
 
+  // Sobe 1 sempre que é preciso pedir a lista outra vez com as mesmas datas (depois de reservar)
+  private readonly reloadCount = signal(0);
+
   // Só há o que verificar com a janela aberta e datas válidas
   private readonly availabilityQuery = computed(() => {
     const car = this.selectedCar();
@@ -61,7 +68,7 @@ export class Cars {
     return { carId: car.id, start: this.reservationStart(), end: this.reservationEnd() };
   });
 
-  // Mensagem por cima do botão: erro de datas, carro ocupado ou erro da API
+  // Mensagem por cima do botão: erro de datas, carro ocupado ou erro do servidor
   protected readonly modalError = computed(() => {
     if (this.reservationDateError()) return this.reservationDateError();
     if (this.availability() === 'unavailable') {
@@ -85,6 +92,22 @@ export class Cars {
 
   protected readonly validDays = computed(() => (this.dateError() ? 0 : this.days()));
 
+  // Com datas válidas a lista só tem carros livres; sem datas é a frota toda
+  protected readonly title = computed(() =>
+    this.validDays() > 0 ? 'Carros disponíveis' : 'A nossa frota',
+  );
+
+  // O que a lista precisa para ser pedida: datas só quando são válidas.
+  // equal: enquanto o utilizador escreve uma data incompleta, o pedido não se repete.
+  private readonly listQuery = computed(
+    () => ({
+      start: this.validDays() > 0 ? this.startDate() : '',
+      end: this.validDays() > 0 ? this.endDate() : '',
+      reload: this.reloadCount(),
+    }),
+    { equal: (a, b) => a.start === b.start && a.end === b.end && a.reload === b.reload },
+  );
+
   // NOVO: as mesmas regras aplicadas às datas da reserva
   protected readonly reservationDays = computed(() =>
     rentalDays(this.reservationStart(), this.reservationEnd()),
@@ -102,8 +125,28 @@ export class Cars {
   );
 
   constructor() {
-    // Sempre que o carro ou as datas da reserva mudam, volta a perguntar à API.
-    // O switchMap descarta respostas antigas se o utilizador mudar as datas depressa.
+    // A lista acompanha as datas sozinha: não é preciso carregar em Procurar.
+    // O switchMap descarta a resposta antiga se as datas mudarem antes de ela chegar.
+    toObservable(this.listQuery)
+      .pipe(
+        switchMap(({ start, end }) => {
+          this.loading.set(true);
+          this.errorMessage.set(null);
+          return this.carsService.getCars(start || undefined, end || undefined).pipe(
+            catchError((error: HttpErrorResponse) => {
+              this.errorMessage.set(getErrorMessage(error));
+              return of(null);
+            }),
+          );
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((cars) => {
+        if (cars) this.cars.set(cars);
+        this.loading.set(false);
+      });
+
+    // Sempre que o carro ou as datas da reserva mudam, volta a perguntar ao servidor.
     toObservable(this.availabilityQuery)
       .pipe(
         switchMap((query) => {
@@ -117,16 +160,9 @@ export class Cars {
         takeUntilDestroyed(),
       )
       .subscribe((state) => this.availability.set(state));
-    this.loadCars();
   }
 
-  protected search(): void {
-    if (this.validDays() === 0) return;
-    this.loadCars(this.startDate(), this.endDate());
-  }
-
-  // ALTERADO: já não exige datas na pesquisa. Se houver, a janela abre com elas
-  // preenchidas e o utilizador pode mudá-las.
+  // Sem datas na pesquisa, a janela abre com as datas vazias para o utilizador escolher
   protected openReservation(car: Car): void {
     this.reservationError.set(null);
     this.successMessage.set(null);
@@ -139,11 +175,9 @@ export class Cars {
     this.selectedCar.set(car);
   }
 
-  // Volta à lista completa
+  // Volta à frota toda: a lista atualiza-se sozinha porque as datas mudaram
   protected clearSearch(): void {
-    this.startDate.set('');
-    this.endDate.set('');
-    this.loadCars();
+    this.search.clear();
   }
 
   protected closeReservation(): void {
@@ -151,7 +185,7 @@ export class Cars {
     this.selectedCar.set(null);
   }
 
-  // ALTERADO: usa as datas da janela, não as da pesquisa
+  // Usa as datas da janela, não as da pesquisa
   protected confirmReservation(car: Car): void {
     const user = this.auth.currentUser();
     if (!user || this.validReservationDays() === 0) return;
@@ -170,7 +204,8 @@ export class Cars {
           this.reserving.set(false);
           this.selectedCar.set(null);
           this.successMessage.set(this.successText(reservation, car));
-          this.refreshList();
+          // Pede a lista outra vez: com datas, o carro reservado deixa de aparecer
+          this.reloadCount.update((count) => count + 1);
         },
         error: (error: HttpErrorResponse) => {
           this.reserving.set(false);
@@ -179,19 +214,10 @@ export class Cars {
       });
   }
 
-  // NOVO: antes o search() não recarregava a lista quando não havia datas na pesquisa
-  private refreshList(): void {
-    if (this.validDays() > 0) {
-      this.loadCars(this.startDate(), this.endDate());
-    } else {
-      this.loadCars();
-    }
-  }
-
-  // NOVO: as regras que estavam dentro do dateError, agora partilhadas pelos dois pares de datas
+  // As mesmas regras do servidor, partilhadas pela pesquisa e pela janela
   private rangeError(start: string, end: string, days: number): string | null {
     if (!start || !end) return null;
-    if (start < this.today) return 'A data de início não pode ser no passado.';
+    if (start < this.minDate) return 'A data de início tem de ser a partir de amanhã.';
     if (end <= start) return 'A data de fim tem de ser depois da data de início.';
     if (days > 30) return 'A reserva não pode passar de 30 dias.';
     return null;
@@ -200,21 +226,5 @@ export class Cars {
   private successText(reservation: Reservation, car: Car): string {
     const total = formatCurrency(reservation.totalPrice, this.locale, '€', 'EUR');
     return `Reserva n.º ${reservation.id} criada: ${car.brand} ${car.model}. Total: ${total}.`;
-  }
-
-  private loadCars(startDate?: string, endDate?: string): void {
-    this.errorMessage.set(null);
-    this.loading.set(true);
-
-    this.carsService.getCars(startDate, endDate).subscribe({
-      next: (cars) => {
-        this.cars.set(cars);
-        this.loading.set(false);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.errorMessage.set(getErrorMessage(error));
-        this.loading.set(false);
-      },
-    });
   }
 }

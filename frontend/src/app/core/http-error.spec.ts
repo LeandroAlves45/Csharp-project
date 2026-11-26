@@ -34,8 +34,6 @@ describe('getErrorMessage', () => {
   it('returns a connection message when the API is off (status 0)', () => {
     const error = new HttpErrorResponse({ status: 0, error: new ProgressEvent('error') });
 
-    expect(getErrorMessage(error)).toBe(
-      'Sem ligação à API. Confirma que o servidor está a correr.',
-    );
+    expect(getErrorMessage(error)).toBe('Sem ligação ao servidor. Tenta novamente daqui a pouco.');
   });
 });

@@ -1,4 +1,4 @@
-import { rentalDays } from './rental';
+import { rentalDays, todayIso, tomorrowIso } from './rental';
 
 // R5: o dia de devolução bloqueia o carro mas não é cobrado.
 describe('rentalDays', () => {
@@ -22,5 +22,11 @@ describe('rentalDays', () => {
   it('returns 0 while a date is still empty', () => {
     expect(rentalDays('', '2026-12-05')).toBe(0);
     expect(rentalDays('2026-12-01', '')).toBe(0);
+  });
+});
+
+describe('tomorrowIso', () => {
+  it('is exactly one day after today', () => {
+    expect(rentalDays(todayIso(), tomorrowIso())).toBe(1);
   });
 });

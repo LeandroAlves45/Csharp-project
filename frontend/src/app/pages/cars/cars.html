@@ -2,123 +2,135 @@
   <header class="cars__header">
     <div>
       <p class="cars__eyebrow">Frota</p>
-      <h1>Carros disponíveis</h1>
+      <h1>{{ title() }}</h1>
     </div>
 
-    <!-- O min do browser só ajuda a escolher; as regras a sério estão no dateError e na API -->
-    <form class="cars__dates" (ngSubmit)="search()">
+    <!-- Sem botão Procurar: a lista filtra sozinha quando as duas datas são válidas.
+         O min do browser só ajuda a escolher; as regras a sério estão no dateError e no servidor -->
+    <div class="cars__dates">
       <div class="field">
         <label for="startDate">Início</label>
-        <input id="startDate" name="startDate" type="date" [min]="today" [(ngModel)]="startDate" />
+        <input
+          id="startDate"
+          name="startDate"
+          type="date"
+          [min]="minDate"
+          [(ngModel)]="startDate"
+        />
       </div>
       <div class="field">
         <label for="endDate">Fim</label>
-        <input id="endDate"
-               name="endDate"
-               type="date"
-               [min]="startDate() || today"
-               [(ngModel)]="endDate" />
+        <input
+          id="endDate"
+          name="endDate"
+          type="date"
+          [min]="startDate() || minDate"
+          [(ngModel)]="endDate"
+        />
       </div>
-      <button class="btn btn--primary" type="submit" [disabled]="validDays() === 0 || loading()">
-        Procurar
-      </button>
       @if (startDate() || endDate()) {
-      <button class="btn btn--secondary" type="button" (click)="clearSearch()">
-        Limpar datas
-      </button>
+        <button class="btn btn--secondary" type="button" (click)="clearSearch()">
+          Limpar datas
+        </button>
       }
-    </form>
+    </div>
   </header>
 
   @if (dateError(); as message) {
-  <app-alert type="warning" [message]="message" [dismissible]="false" />
+    <app-alert type="warning" [message]="message" [dismissible]="false" />
   }
 
   @if (errorMessage(); as message) {
-  <app-alert type="error" [message]="message" (closed)="errorMessage.set(null)" />
+    <app-alert type="error" [message]="message" (closed)="errorMessage.set(null)" />
   }
 
   @if (validDays() === 0 && !dateError()) {
-  <p class="cars__hint">Escolhe as datas para veres o preço total de cada carro.</p>
+    <p class="cars__hint">Escolhe as datas para veres só os carros livres e o preço total de cada um.</p>
   }
 
   @if (successMessage(); as message) {
-  <app-alert type="success" [message]="message" (closed)="successMessage.set(null)" />
+    <app-alert type="success" [message]="message" (closed)="successMessage.set(null)" />
   }
 
   <div class="cars__grid">
     <!-- track car.id: o Angular reaproveita o cartão de cada carro em vez de redesenhar a lista -->
     @for (car of cars(); track car.id) {
-    <app-car-card [car]="car" [days]="validDays()" (reserve)="openReservation(car)" />
+      <app-car-card [car]="car" [days]="validDays()" (reserve)="openReservation(car)" />
     } @empty {
-    <p class="cars__empty">Não há carros disponíveis para estas datas.</p>
+      <p class="cars__empty">Não há carros disponíveis para estas datas.</p>
     }
   </div>
 
   <!-- A janela só existe no HTML enquanto há um carro escolhido -->
   @if (selectedCar(); as car) {
-  <app-confirm-modal title="Confirmar reserva"
-                     confirmLabel="Confirmar reserva"
-                     [loading]="reserving()"
-                     [confirmDisabled]="confirmBlocked()"
-                     [errorMessage]="modalError()"
-                     (confirmed)="confirmReservation(car)"
-                     (cancelled)="closeReservation()">
-    <p class="reservation-car">{{ car.brand }} {{ car.model }} · {{ car.licensePlate }}</p>
+    <app-confirm-modal
+      title="Confirmar reserva"
+      confirmLabel="Confirmar reserva"
+      [loading]="reserving()"
+      [confirmDisabled]="confirmBlocked()"
+      [errorMessage]="modalError()"
+      (confirmed)="confirmReservation(car)"
+      (cancelled)="closeReservation()"
+    >
+      <p class="reservation-car">{{ car.brand }} {{ car.model }} · {{ car.licensePlate }}</p>
 
-    @if (reservationLocked()) {
-    <dl class="summary">
-      <div>
-        <dt>Datas</dt>
-        <dd>
-          {{ reservationStart() | date: 'dd/MM/yyyy' : 'UTC' }} a
-          {{ reservationEnd() | date: 'dd/MM/yyyy' : 'UTC' }}
-        </dd>
-      </div>
-    </dl>
-    <p class="summary__note">
-      Estas são as datas da tua pesquisa. Para reservar noutras datas, muda a pesquisa.
-    </p>
-    } @else {
-    <div class="reservation-dates">
-      <div class="field">
-        <label for="reservationStart">Início</label>
-        <input id="reservationStart"
-               type="date"
-               [min]="today"
-               [(ngModel)]="reservationStart"
-               (ngModelChange)="reservationError.set(null)" />
-      </div>
-      <div class="field">
-        <label for="reservationEnd">Fim</label>
-        <input id="reservationEnd"
-               type="date"
-               [min]="reservationStart() || today"
-               [(ngModel)]="reservationEnd"
-               (ngModelChange)="reservationError.set(null)" />
-      </div>
-    </div>
-    }
+      @if (reservationLocked()) {
+        <dl class="summary">
+          <div>
+            <dt>Datas</dt>
+            <dd>
+              {{ reservationStart() | date: 'dd/MM/yyyy' : 'UTC' }} a
+              {{ reservationEnd() | date: 'dd/MM/yyyy' : 'UTC' }}
+            </dd>
+          </div>
+        </dl>
+        <p class="summary__note">
+          Estas são as datas da tua pesquisa. Para reservar noutras datas, muda a pesquisa.
+        </p>
+      } @else {
+        <div class="reservation-dates">
+          <div class="field">
+            <label for="reservationStart">Início</label>
+            <input
+              id="reservationStart"
+              type="date"
+              [min]="minDate"
+              [(ngModel)]="reservationStart"
+              (ngModelChange)="reservationError.set(null)"
+            />
+          </div>
+          <div class="field">
+            <label for="reservationEnd">Fim</label>
+            <input
+              id="reservationEnd"
+              type="date"
+              [min]="reservationStart() || minDate"
+              [(ngModel)]="reservationEnd"
+              (ngModelChange)="reservationError.set(null)"
+            />
+          </div>
+        </div>
+      }
 
-    @if (availability() === 'checking') {
-    <p class="summary__note">A verificar disponibilidade…</p>
-    } @else if (availability() === 'available') {
-    <p class="summary__note">Carro disponível nestas datas.</p>
-    }
+      @if (availability() === 'checking') {
+        <p class="summary__note">A verificar disponibilidade…</p>
+      } @else if (availability() === 'available') {
+        <p class="summary__note">Carro disponível nestas datas.</p>
+      }
 
-    <dl class="summary">
-      <div>
-        <dt>Dias cobrados</dt>
-        <dd>{{ validReservationDays() }}</dd>
-      </div>
-      <div>
-        <dt>Estimativa</dt>
-        <dd>{{ validReservationDays() * car.dailyPrice | currency: 'EUR' }}</dd>
-      </div>
-    </dl>
-    <p class="summary__note">
-      O dia de devolução não é cobrado. O preço final é o que a API calcular.
-    </p>
-  </app-confirm-modal>
+      <dl class="summary">
+        <div>
+          <dt>Dias cobrados</dt>
+          <dd>{{ validReservationDays() }}</dd>
+        </div>
+        <div>
+          <dt>Estimativa</dt>
+          <dd>{{ validReservationDays() * car.dailyPrice | currency: 'EUR' }}</dd>
+        </div>
+      </dl>
+      <p class="summary__note">
+        O dia de devolução não é cobrado. O valor final é confirmado ao concluir a reserva.
+      </p>
+    </app-confirm-modal>
   }
 </section>

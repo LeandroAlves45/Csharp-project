@@ -24,6 +24,9 @@ export class Login {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly loading = signal(false);
 
+  // Mostrar a password ajuda a confirmar o que se escreveu; começa escondida
+  protected readonly showPassword = signal(false);
+
   protected submit(loginForm: NgForm): void {
     // Validação no browser: poupa um pedido; a API volta a validar (é ela que manda)
     if (loginForm.invalid) return;

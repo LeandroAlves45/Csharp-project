@@ -48,7 +48,8 @@ describe('AuthService', () => {
     expect(localStorage.getItem('autorent.user')).toBeNull();
   });
 
-  it('register posts to /auth/register and starts the session', () => {
+  // O registo deixou de iniciar sessão: depois de criar a conta, a pessoa faz login
+  it('register posts to /auth/register without starting a session', () => {
     service.register({ name: 'Ana', email: 'ana@teste.com', password: 'Teste123' }).subscribe();
 
     httpMock
@@ -58,7 +59,8 @@ describe('AuthService', () => {
         { status: 201, statusText: 'Created' },
       );
 
-    expect(service.currentUser()?.id).toBe(2);
+    expect(service.isLoggedIn()).toBe(false);
+    expect(localStorage.getItem('autorent.user')).toBeNull();
   });
 
   it('logout clears the session', () => {

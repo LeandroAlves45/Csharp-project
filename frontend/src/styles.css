@@ -164,6 +164,36 @@ select {
   box-shadow: var(--focus-ring);
 }
 
+/* Campo da password com o botão Mostrar/Ocultar por cima, encostado à direita */
+.field__password {
+  position: relative;
+}
+
+/* padding-right: o texto escrito não fica escondido por baixo do botão */
+.field__password input {
+  padding-right: 88px;
+}
+
+.field__toggle {
+  position: absolute;
+  top: 50%;
+  right: var(--space-2);
+  transform: translateY(-50%);
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-primary);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.field__toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 /* A mensagem de erro só existe no HTML quando há erro, por isso não precisa de display: none */
 .field__error {
   color: var(--color-danger);
