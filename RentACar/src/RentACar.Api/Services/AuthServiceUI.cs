@@ -32,7 +32,7 @@ namespace RentACar.Api.Repositories
 
             if (signIn.Password.Length < 6)
             {
-                throw new ArgumentException("A senha deve ter pelo menos 6 caracteres.");
+                throw new ArgumentException("A password deve ter pelo menos 6 caracteres.");
             }
 
             // Verifica se o email já está em uso
