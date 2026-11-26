@@ -30,11 +30,11 @@ export class AuthService {
       .pipe(tap((user) => this.saveUser(user)));
   }
 
-  // A API devolve o mesmo UserResponse no registo, por isso a conta nova já fica com sessão
+  // Registar um novo utilizador sem iniciar sessão
   register(request: RegisterRequest): Observable<UserResponse> {
-    return this.http
-      .post<UserResponse>(`${API_BASE_URL}/auth/register`, request)
-      .pipe(tap((user) => this.saveUser(user)));
+    return this.http.post<UserResponse>(
+      `${API_BASE_URL}/auth/register`,
+      request);
   }
 
   logout(): void {
@@ -42,7 +42,7 @@ export class AuthService {
     this.user.set(null);
   }
 
-  // Privado: agora só o login e o registo podem criar uma sessão
+  // Privado: agora só o login pode criar uma sessão
   private saveUser(user: UserResponse): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
     this.user.set(user);

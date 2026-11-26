@@ -1,3 +1,4 @@
+
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
@@ -31,9 +32,12 @@ export class Register {
     this.errorMessage.set(null);
     this.loading.set(true);
 
-    // O registo já devolve o utilizador, por isso entra logo sem passar pelo login
+    // Depois do registo, o utilizador tem de fazer login
     this.auth.register(this.form).subscribe({
-      next: () => this.router.navigateByUrl('/cars'),
+      next: () => {
+        this.auth.logout();
+        this.router.navigateByUrl('/login');
+      },
       error: (error: HttpErrorResponse) => {
         this.errorMessage.set(getErrorMessage(error));
         this.loading.set(false);
