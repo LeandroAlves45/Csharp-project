@@ -28,6 +28,24 @@ namespace RentACar.Api.Services
             return reservasDoUtilizador;
         }
 
+        public bool IsCarAvailable(int carId, DateOnly startDate, DateOnly endDate)
+        {
+            var reservasExistentes = _reservationRepository.GetAll();
+
+            foreach (Reservation existing in reservasExistentes)
+            {
+                if (existing.CarId == carId &&
+                    existing.Status == ReservationStatus.Active &&
+                    startDate <= existing.EndDate &&
+                    endDate >= existing.StartDate)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public void CreateReservation(Reservation reservation)
         {
 

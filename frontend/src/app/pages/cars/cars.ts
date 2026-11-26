@@ -27,8 +27,7 @@ export class Cars {
 
   protected readonly today = todayIso();
 
-  // Signals ligados aos <input type="date"> com [(ngModel)]: tudo o que depende das datas
-  // (dias, erro, estimativa nos cartões) recalcula-se sozinho quando o utilizador as muda
+  // Datas da PESQUISA: só filtram a lista de carros
   protected readonly startDate = signal('');
   protected readonly endDate = signal('');
 
@@ -42,25 +41,35 @@ export class Cars {
   protected readonly reservationError = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
+  // NOVO: datas da RESERVA, escolhidas dentro da janela
+  protected readonly reservationStart = signal('');
+  protected readonly reservationEnd = signal('');
+
   protected readonly days = computed(() => rentalDays(this.startDate(), this.endDate()));
 
-  // As mesmas regras da API (R2, R4), com as mesmas mensagens: o utilizador vê o problema
-  // antes de reservar. A API continua a validar, porque o browser pode ser contornado.
-  protected readonly dateError = computed(() => {
-    const start = this.startDate();
-    const end = this.endDate();
-    if (!start || !end) return null;
-    if (start < this.today) return 'A data de início não pode ser no passado.';
-    if (end <= start) return 'A data de fim tem de ser depois da data de início.';
-    if (this.days() > 30) return 'A reserva não pode passar de 30 dias.';
-    return null;
-  });
+  protected readonly dateError = computed(() =>
+    this.rangeError(this.startDate(), this.endDate(), this.days()),
+  );
 
-  // 0 quando as datas faltam ou estão erradas: os cartões não mostram estimativa
   protected readonly validDays = computed(() => (this.dateError() ? 0 : this.days()));
 
+  // NOVO: as mesmas regras aplicadas às datas da reserva
+  protected readonly reservationDays = computed(() =>
+    rentalDays(this.reservationStart(), this.reservationEnd()),
+  );
+
+  protected readonly reservationDateError = computed(() =>
+    this.rangeError(this.reservationStart(), this.reservationEnd(), this.reservationDays()),
+  );
+
+  // 0 enquanto as datas faltam ou estão erradas
+  protected readonly validReservationDays = computed(() =>
+    !this.reservationStart() || !this.reservationEnd() || this.reservationDateError()
+      ? 0
+      : this.reservationDays(),
+  );
+
   constructor() {
-    // Sem datas, a API devolve todos os carros (ecrã inicial)
     this.loadCars();
   }
 
@@ -69,23 +78,25 @@ export class Cars {
     this.loadCars(this.startDate(), this.endDate());
   }
 
+  // ALTERADO: já não exige datas na pesquisa. Se houver, a janela abre com elas
+  // preenchidas e o utilizador pode mudá-las.
   protected openReservation(car: Car): void {
-    // O botão já está desativado sem datas válidas; isto protege na mesma
-    if (this.validDays() === 0) return;
     this.reservationError.set(null);
     this.successMessage.set(null);
+    this.reservationStart.set(this.validDays() > 0 ? this.startDate() : '');
+    this.reservationEnd.set(this.validDays() > 0 ? this.endDate() : '');
     this.selectedCar.set(car);
   }
 
   protected closeReservation(): void {
-    // Enquanto o pedido decorre, a janela não fecha: o utilizador vê sempre o resultado
     if (this.reserving()) return;
     this.selectedCar.set(null);
   }
 
+  // ALTERADO: usa as datas da janela, não as da pesquisa
   protected confirmReservation(car: Car): void {
     const user = this.auth.currentUser();
-    if (!user) return;
+    if (!user || this.validReservationDays() === 0) return;
     this.reservationError.set(null);
     this.reserving.set(true);
 
@@ -93,15 +104,15 @@ export class Cars {
       .create({
         userId: user.id,
         carId: car.id,
-        startDate: this.startDate(),
-        endDate: this.endDate(),
+        startDate: this.reservationStart(),
+        endDate: this.reservationEnd(),
       })
       .subscribe({
         next: (reservation) => {
           this.reserving.set(false);
           this.selectedCar.set(null);
           this.successMessage.set(this.successText(reservation, car));
-          this.search();
+          this.refreshList();
         },
         error: (error: HttpErrorResponse) => {
           this.reserving.set(false);
@@ -110,7 +121,24 @@ export class Cars {
       });
   }
 
-  // O total vem da resposta da API (R5), não da estimativa do ecrã
+  // NOVO: antes o search() não recarregava a lista quando não havia datas na pesquisa
+  private refreshList(): void {
+    if (this.validDays() > 0) {
+      this.loadCars(this.startDate(), this.endDate());
+    } else {
+      this.loadCars();
+    }
+  }
+
+  // NOVO: as regras que estavam dentro do dateError, agora partilhadas pelos dois pares de datas
+  private rangeError(start: string, end: string, days: number): string | null {
+    if (!start || !end) return null;
+    if (start < this.today) return 'A data de início não pode ser no passado.';
+    if (end <= start) return 'A data de fim tem de ser depois da data de início.';
+    if (days > 30) return 'A reserva não pode passar de 30 dias.';
+    return null;
+  }
+
   private successText(reservation: Reservation, car: Car): string {
     const total = formatCurrency(reservation.totalPrice, this.locale, '€', 'EUR');
     return `Reserva n.º ${reservation.id} criada: ${car.brand} ${car.model}. Total: ${total}.`;
