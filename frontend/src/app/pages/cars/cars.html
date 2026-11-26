@@ -22,6 +22,11 @@
       <button class="btn btn--primary" type="submit" [disabled]="validDays() === 0 || loading()">
         Procurar
       </button>
+      @if (startDate() || endDate()) {
+      <button class="btn btn--secondary" type="button" (click)="clearSearch()">
+        Limpar datas
+      </button>
+      }
     </form>
   </header>
 
@@ -55,12 +60,26 @@
   <app-confirm-modal title="Confirmar reserva"
                      confirmLabel="Confirmar reserva"
                      [loading]="reserving()"
-                     [confirmDisabled]="validReservationDays() === 0"
-                     [errorMessage]="reservationDateError() ?? reservationError()"
+                     [confirmDisabled]="confirmBlocked()"
+                     [errorMessage]="modalError()"
                      (confirmed)="confirmReservation(car)"
                      (cancelled)="closeReservation()">
     <p class="reservation-car">{{ car.brand }} {{ car.model }} · {{ car.licensePlate }}</p>
 
+    @if (reservationLocked()) {
+    <dl class="summary">
+      <div>
+        <dt>Datas</dt>
+        <dd>
+          {{ reservationStart() | date: 'dd/MM/yyyy' : 'UTC' }} a
+          {{ reservationEnd() | date: 'dd/MM/yyyy' : 'UTC' }}
+        </dd>
+      </div>
+    </dl>
+    <p class="summary__note">
+      Estas são as datas da tua pesquisa. Para reservar noutras datas, muda a pesquisa.
+    </p>
+    } @else {
     <div class="reservation-dates">
       <div class="field">
         <label for="reservationStart">Início</label>
@@ -79,6 +98,13 @@
                (ngModelChange)="reservationError.set(null)" />
       </div>
     </div>
+    }
+
+    @if (availability() === 'checking') {
+    <p class="summary__note">A verificar disponibilidade…</p>
+    } @else if (availability() === 'available') {
+    <p class="summary__note">Carro disponível nestas datas.</p>
+    }
 
     <dl class="summary">
       <div>

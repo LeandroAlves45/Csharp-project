@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { API_BASE_URL } from '../api.config';
 import { Car } from '../models/car';
+import { CarAvailability } from '../models/car-availability';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +23,12 @@ export class CarsService {
       .pipe(
         map((cars) => cars.map((car) => ({ ...car, imageUrl: this.toAbsoluteUrl(car.imageUrl) }))),
       );
+  }
+
+  // Diz se um carro está livre nesse intervalo (GET /cars/{id}/availability)
+  getAvailability(carId: number, startDate: string, endDate: string): Observable<CarAvailability> {
+    const params = new HttpParams().set('startDate', startDate).set('endDate', endDate);
+    return this.http.get<CarAvailability>(`${API_BASE_URL}/cars/${carId}/availability`, { params });
   }
 
   // A API devolve "/images/cars/x.jpg". O browser procuraria isso no :4200,

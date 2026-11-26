@@ -12,6 +12,10 @@ import { ReservationsService } from '../../core/services/reservations.service';
 import { Alert } from '../../shared/alert/alert';
 import { CarCard } from '../../shared/car-card/car-card';
 import { ConfirmModal } from '../../shared/confirm-modal/confirm-modal';
+import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
+import { catchError, map, of, startWith, switchMap } from 'rxjs';
+
+type AvailabilityState = 'idle' | 'checking' | 'available' | 'unavailable' | 'error';
 
 @Component({
   selector: 'app-cars',
@@ -45,6 +49,34 @@ export class Cars {
   protected readonly reservationStart = signal('');
   protected readonly reservationEnd = signal('');
 
+  // true quando a pesquisa tinha datas válidas: o modal mostra-as fixas, sem poderem ser mudadas
+  protected readonly reservationLocked = signal(false);
+
+  protected readonly availability = signal<AvailabilityState>('idle');
+
+  // Só há o que verificar com a janela aberta e datas válidas
+  private readonly availabilityQuery = computed(() => {
+    const car = this.selectedCar();
+    if (!car || this.validReservationDays() === 0) return null;
+    return { carId: car.id, start: this.reservationStart(), end: this.reservationEnd() };
+  });
+
+  // Mensagem por cima do botão: erro de datas, carro ocupado ou erro da API
+  protected readonly modalError = computed(() => {
+    if (this.reservationDateError()) return this.reservationDateError();
+    if (this.availability() === 'unavailable') {
+      return 'Este carro já está reservado nestas datas. Escolhe outras datas ou outro carro.';
+    }
+    return this.reservationError();
+  });
+
+  protected readonly confirmBlocked = computed(
+    () =>
+      this.validReservationDays() === 0 ||
+      this.availability() === 'checking' ||
+      this.availability() === 'unavailable',
+  );
+
   protected readonly days = computed(() => rentalDays(this.startDate(), this.endDate()));
 
   protected readonly dateError = computed(() =>
@@ -70,6 +102,21 @@ export class Cars {
   );
 
   constructor() {
+    // Sempre que o carro ou as datas da reserva mudam, volta a perguntar à API.
+    // O switchMap descarta respostas antigas se o utilizador mudar as datas depressa.
+    toObservable(this.availabilityQuery)
+      .pipe(
+        switchMap((query) => {
+          if (!query) return of<AvailabilityState>('idle');
+          return this.carsService.getAvailability(query.carId, query.start, query.end).pipe(
+            map((result): AvailabilityState => (result.available ? 'available' : 'unavailable')),
+            startWith<AvailabilityState>('checking'),
+            catchError(() => of<AvailabilityState>('error')),
+          );
+        }),
+        takeUntilDestroyed(),
+      )
+      .subscribe((state) => this.availability.set(state));
     this.loadCars();
   }
 
@@ -83,9 +130,20 @@ export class Cars {
   protected openReservation(car: Car): void {
     this.reservationError.set(null);
     this.successMessage.set(null);
-    this.reservationStart.set(this.validDays() > 0 ? this.startDate() : '');
-    this.reservationEnd.set(this.validDays() > 0 ? this.endDate() : '');
+
+    // Com datas na pesquisa, são essas as da reserva (fixas). Sem datas, escolhe-as no modal.
+    const locked = this.validDays() > 0;
+    this.reservationLocked.set(locked);
+    this.reservationStart.set(locked ? this.startDate() : '');
+    this.reservationEnd.set(locked ? this.endDate() : '');
     this.selectedCar.set(car);
+  }
+
+  // Volta à lista completa
+  protected clearSearch(): void {
+    this.startDate.set('');
+    this.endDate.set('');
+    this.loadCars();
   }
 
   protected closeReservation(): void {

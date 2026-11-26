@@ -44,8 +44,8 @@ namespace RentACar.Api.Services
             {
                 if (existing.CarId == carId &&
                     existing.Status == ReservationStatus.Active &&
-                    startDate <= existing.EndDate &&
-                    endDate >= existing.StartDate)
+                    startDate < existing.EndDate &&
+                    endDate > existing.StartDate)
                 {
                     return false;
                 }

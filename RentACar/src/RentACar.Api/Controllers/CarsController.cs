@@ -27,6 +27,23 @@ namespace RentACar.Api.Controllers
             return Ok(cars);
         }
 
+        // GET: api/cars/1/availability?startDate=2026-12-01&endDate=2026-12-03
+        [HttpGet("{id:int}/availability")]
+        public ActionResult<CarAvailabilityResponse> GetAvailability(
+            int id,
+            [FromQuery] DateOnly? startDate,
+            [FromQuery] DateOnly? endDate)
+        {
+            var result = _carService.GetAvailability(id, startDate, endDate);
+
+            if (result == null)
+            {
+                return NotFound("Carro não encontrado.");
+            }
+
+            return Ok(result);
+        }
+
         // GET: api/cars/1
         [HttpGet("{id:int}")]
         public ActionResult<CarResponse> GetCarById(int id)
