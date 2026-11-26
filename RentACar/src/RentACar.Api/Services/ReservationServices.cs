@@ -45,7 +45,6 @@ namespace RentACar.Api.Services
 
             return true;
         }
-
         public void CreateReservation(Reservation reservation)
         {
 
@@ -53,9 +52,19 @@ namespace RentACar.Api.Services
 
             var car = _carRepository.GetById(reservation.CarId);
 
+            if (car == null)
+            {
+                throw new ArgumentException("O carro selecionado não existe.");
+            }
+
             var user = _userRepository.GetById(reservation.UserId);
             
             reservation.CancelledAt = null; // Garantir que a propriedade CancelledAt seja nula ao criar uma nova reserva
+      
+            if (user == null)
+            {
+                throw new ArgumentException("O usuário selecionado não existe.");
+            }
 
             if (reservation.StartDate < DateOnly.FromDateTime(DateTime.Today))
             {
@@ -71,23 +80,13 @@ namespace RentACar.Api.Services
             {
                 throw new ArgumentException("A reserva não pode exceder 30 dias.");
             }
-            foreach (Reservation existing in reservasExistentes)
-            {
-                if (reservation.StartDate <= existing.EndDate && reservation.EndDate >= existing.StartDate && existing.CarId == reservation.CarId && existing.Status == ReservationStatus.Active)
+                if (!IsCarAvailable(reservation.CarId, reservation.StartDate, reservation.EndDate))
                 {
-                    throw new ArgumentException("A reserva conflita com uma reserva existente.");
+                    throw new ArgumentException("O carro não está disponível para estas datas.");
                 }
-            }
-            if (car == null)
-            {
-                throw new ArgumentException("O carro selecionado não existe.");
-            }
-            if (user == null)
-            {
-                throw new ArgumentException("O usuário selecionado não existe.");
-            }
 
-            reservation.TotalPrice = car.DailyPrice * (reservation.EndDate.DayNumber - reservation.StartDate.DayNumber); // Cálculo do preco total com base no preço diário do carro e na duração da reserva
+
+                reservation.TotalPrice = car.DailyPrice * (reservation.EndDate.DayNumber - reservation.StartDate.DayNumber); // Cálculo do preco total com base no preço diário do carro e na duração da reserva
 
             reservation.Status = ReservationStatus.Active;
 
