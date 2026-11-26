@@ -1,17 +1,32 @@
-import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { MOCK_CARS } from '../mocks/car.mock';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable, map } from 'rxjs';
+import { API_BASE_URL } from '../api.config';
 import { Car } from '../models/car';
 
 @Injectable({
   providedIn: 'root',
 })
 export class CarsService {
-  // MOCK: a assinatura já é a final (Observable), por isso trocar para a API
-  // muda só o corpo deste método, e a página não muda. Quando a API estiver pronta:
-  //   return this.http.get<Car[]>(`${API_BASE_URL}/cars`, { params: { startDate, endDate } });
-  // Com datas, a API devolve só os carros livres (R3). O mock devolve sempre todos.
+  private readonly http = inject(HttpClient);
+
+  // Com as duas datas, a API devolve só os carros livres nesse intervalo.
   getCars(startDate?: string, endDate?: string): Observable<Car[]> {
-    return of(MOCK_CARS);
+    let params = new HttpParams();
+    if (startDate && endDate) {
+      params = params.set('startDate', startDate).set('endDate', endDate);
+    }
+
+    return this.http
+      .get<Car[]>(`${API_BASE_URL}/cars`, { params })
+      .pipe(
+        map((cars) => cars.map((car) => ({ ...car, imageUrl: this.toAbsoluteUrl(car.imageUrl) }))),
+      );
+  }
+
+  // A API devolve "/images/cars/x.jpg". O browser procuraria isso no :4200,
+  // por isso juntamos o endereço da API. Se já for um URL completo, fica como está.
+  private toAbsoluteUrl(url: string): string {
+    return url ? new URL(url, API_BASE_URL).href : '';
   }
 }

@@ -16,6 +16,7 @@ export class ConfirmModal {
   // O pai é que sabe se o pedido está a decorrer e se algo falhou: a janela só mostra.
   readonly loading = input(false);
   readonly errorMessage = input<string | null>(null);
+  readonly confirmDisabled = input(false);
 
   readonly confirmed = output<void>();
   readonly cancelled = output<void>();

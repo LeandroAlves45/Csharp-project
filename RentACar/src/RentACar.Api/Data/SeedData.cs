@@ -13,7 +13,7 @@ namespace RentACar.Api.Data
                 new Car { Id = 3,  Brand = "Volkswagen", Model = "Golf",      LicensePlate = "EE-22-FF", Category = "Compact", DailyPrice = 45.00m, ImageUrl = "/images/cars/volkswagen-golf.jpg" },
                 new Car { Id = 4,  Brand = "Mercedes",   Model = "Classe A",  LicensePlate = "GG-33-HH", Category = "Premium", DailyPrice = 65.00m, ImageUrl = "/images/cars/mercedes-classe-a.jpg" },
                 new Car { Id = 5,  Brand = "Renault",    Model = "Clio",      LicensePlate = "II-44-JJ", Category = "Economy", DailyPrice = 30.00m, ImageUrl = "/images/cars/renault-clio.jpg" },
-                
+
                 new Car { Id = 6,  Brand = "Peugeot",    Model = "208",       LicensePlate = "KK-55-LL", Category = "Economy",  DailyPrice = 32.00m,  ImageUrl = "/images/cars/peugeot-208.jpg" },
                 new Car { Id = 7,  Brand = "Opel",       Model = "Corsa",     LicensePlate = "MM-66-NN", Category = "Economy",  DailyPrice = 29.00m,  ImageUrl = "/images/cars/opel-corsa.jpg" },
                 new Car { Id = 8,  Brand = "Fiat",       Model = "500",       LicensePlate = "OO-77-PP", Category = "Economy",  DailyPrice = 28.00m,  ImageUrl = "/images/cars/fiat-500.jpg" },

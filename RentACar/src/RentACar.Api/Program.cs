@@ -52,6 +52,7 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 // Tem de vir antes de UseAuthorization e MapControllers, para os cabeçalhos CORS
 // (e a resposta ao preflight OPTIONS) serem tratados antes de chegar aos controllers.

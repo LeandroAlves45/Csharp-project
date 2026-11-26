@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, signal } from '@angular/core';
 import { Car } from '../../core/models/car';
 
 // A API guarda a categoria em inglês; o ecrã mostra-a em português
@@ -7,6 +7,8 @@ const CATEGORY_LABELS: Record<string, string> = {
   Economy: 'Económico',
   Compact: 'Compacto',
   Premium: 'Premium',
+  SUV: 'SUV',
+  Electric: 'Elétrico',
 };
 
 @Component({
@@ -25,6 +27,8 @@ export class CarCard {
   protected readonly categoryLabel = computed(
     () => CATEGORY_LABELS[this.car().category] ?? this.car().category,
   );
+
+  protected readonly imageFailed = signal(false);
 
   // O cartão só avisa que clicaram em Reservar; quem abre a janela é a página,
   // porque é ela que sabe as datas e fala com o serviço

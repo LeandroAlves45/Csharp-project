@@ -1,10 +1,12 @@
 <article class="car-card">
   <div class="car-card__media">
-    @if (car().imageUrl) {
-      <img [src]="car().imageUrl" [alt]="car().brand + ' ' + car().model" />
+    @if (car().imageUrl && !imageFailed()) {
+    <img [src]="car().imageUrl"
+         [alt]="car().brand + ' ' + car().model"
+         (error)="imageFailed.set(true)" />
     } @else {
-      <!-- Ainda sem fotografias (S2-11): a marca ocupa o espaço, para o cartão não ficar vazio -->
-      <span class="car-card__placeholder" aria-hidden="true">{{ car().brand }}</span>
+    <!-- Ainda sem fotografias (S2-11): a marca ocupa o espaço, para o cartão não ficar vazio -->
+    <span class="car-card__placeholder" aria-hidden="true">{{ car().brand }}</span>
     }
     <span class="tag tag--accent car-card__category">{{ categoryLabel() }}</span>
   </div>

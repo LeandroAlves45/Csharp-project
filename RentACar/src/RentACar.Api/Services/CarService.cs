@@ -8,14 +8,12 @@ namespace RentACar.Api.Services
     public class CarService
     {
         private readonly ICarRepository _carRepository;
-        private readonly IReservationRepository _reservationRepository;
+        private readonly ReservationService _reservationService;
 
-        public CarService(
-            ICarRepository carRepository,
-            IReservationRepository reservationRepository)
+        public CarService(ICarRepository carRepository, ReservationService reservationService)
         {
             _carRepository = carRepository;
-            _reservationRepository = reservationRepository;
+            _reservationService = reservationService;
         }
 
         public List<CarResponse> GetAllCars(DateOnly? startDate, DateOnly? endDate)
@@ -23,35 +21,18 @@ namespace RentACar.Api.Services
             var cars = _carRepository.GetAll();
 
             if (startDate == null && endDate == null)
-            {
                 return cars.Select(MapToResponse).ToList();
-            }
 
             if (startDate == null || endDate == null)
-            {
-                throw new BadRequestException(
-                    "É necessário indicar a data de início e a data de fim.");
-            }
+                throw new BadRequestException("É necessário indicar a data de início e a data de fim.");
 
-            if (endDate < startDate)
-            {
-                throw new BadRequestException(
-                    "A data de fim não pode ser anterior à data de início.");
-            }
+            if (endDate <= startDate)
+                throw new BadRequestException("A data de fim tem de ser depois da data de início.");
 
-            var reservations = _reservationRepository.GetAll();
-
-            var availableCars = cars
-                .Where(car => !reservations.Any(r =>
-                    r.CarId == car.Id &&
-                    r.Status == ReservationStatus.Active &&
-                    startDate <= r.EndDate &&
-                    endDate >= r.StartDate
-                ))
+            return cars
+                .Where(car => _reservationService.IsCarAvailable(car.Id, startDate.Value, endDate.Value))
                 .Select(MapToResponse)
                 .ToList();
-
-            return availableCars;
         }
 
         public CarResponse? GetCarById(int id)

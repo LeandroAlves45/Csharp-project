@@ -4,6 +4,17 @@
   gap: var(--space-6);
 }
 
+.reservation-car {
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.reservation-dates {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
 /* Título à esquerda e datas à direita; em ecrãs estreitos as datas passam para baixo */
 .cars__header {
   display: flex;
