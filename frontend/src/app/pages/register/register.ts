@@ -26,6 +26,9 @@ export class Register {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly loading = signal(false);
 
+  // Mostrar a password ajuda a confirmar o que se escreveu; começa escondida
+  protected readonly showPassword = signal(false);
+
   protected submit(registerForm: NgForm): void {
     if (registerForm.invalid) return;
 

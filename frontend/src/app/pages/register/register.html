@@ -56,16 +56,27 @@
       [class.field--error]="password.invalid && (password.touched || registerForm.submitted)"
     >
       <label for="password">Password</label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        autocomplete="new-password"
-        required
-        minlength="6"
-        [(ngModel)]="form.password"
-        #password="ngModel"
-      />
+      <div class="field__password">
+        <input
+          id="password"
+          name="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          autocomplete="new-password"
+          required
+          minlength="6"
+          [(ngModel)]="form.password"
+          #password="ngModel"
+        />
+        <!-- type="button": este botão não envia o formulário. aria-pressed diz ao leitor de ecrã se está ligado -->
+        <button
+          class="field__toggle"
+          type="button"
+          [attr.aria-pressed]="showPassword()"
+          (click)="showPassword.set(!showPassword())"
+        >
+          {{ showPassword() ? 'Ocultar' : 'Mostrar' }}
+        </button>
+      </div>
       @if (password.invalid && (password.touched || registerForm.submitted)) {
         <span class="field__error">A password tem de ter pelo menos 6 caracteres.</span>
       }

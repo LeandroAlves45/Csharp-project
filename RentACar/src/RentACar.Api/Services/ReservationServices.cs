@@ -33,25 +33,50 @@ namespace RentACar.Api.Services
                 .ToList();
         }
 
+        public static bool DatesOverlap(
+            DateOnly start1,
+            DateOnly end1,
+            DateOnly start2,
+            DateOnly end2)
+        {
+            return start1 < end2 && start2 < end1;
+        }
+
+        // Carro não pode ter outra reserva ativa nessas datas.
+        // AddDays(1) nas duas reservas: o dia de devolução fica bloqueado para limpeza.
+        // Se uma reserva acaba a 10, a próxima deste carro só pode começar a 11
+        // (e uma reserva nova que acabe a 10 não pode ter outra a começar a 10).
+
         public bool IsCarAvailable(
             int carId,
             DateOnly startDate,
             DateOnly endDate)
         {
-            var existingReservations = _reservationRepository.GetAll();
-
-            foreach (Reservation existing in existingReservations)
-            {
-                if (existing.CarId == carId &&
+            return !_reservationRepository.GetAll()
+                .Any(existing => existing.CarId == carId &&
                     existing.Status == ReservationStatus.Active &&
-                    startDate < existing.EndDate &&
-                    endDate > existing.StartDate)
-                {
-                    return false;
-                }
-            }
+                    DatesOverlap(
+                        startDate,
+                        endDate.AddDays(1),
+                        existing.StartDate,
+                        existing.EndDate.AddDays(1)));
+        }
 
-            return true;
+        // O mesmo utilizador não pode ter dois carros ao mesmo tempo.
+        // Sem o dia extra de limpeza: a pessoa pode devolver um carro e levantar outro no mesmo dia.
+        public bool UserHasReservationInDates(
+            int userId,
+            DateOnly startDate,
+            DateOnly endDate)
+        {
+            return _reservationRepository.GetAll()
+                .Any(existing => existing.UserId == userId &&
+                    existing.Status == ReservationStatus.Active &&
+                    DatesOverlap(
+                        startDate,
+                        endDate,
+                        existing.StartDate,
+                        existing.EndDate));
         }
 
         public void CreateReservation(Reservation reservation)
@@ -79,6 +104,15 @@ namespace RentACar.Api.Services
                     "A data de início não pode estar no passado.");
             }
 
+            // Só a partir de amanhã. O carro precisa de ser preparado e,
+            // pela regra C3, uma reserva para hoje nunca poderia ser cancelada.
+            if (reservation.StartDate <=
+                DateOnly.FromDateTime(DateTime.Today))
+            {
+                throw new BadRequestException(
+                    "A data de início tem de ser a partir de amanhã.");
+            }
+
             if (reservation.EndDate <= reservation.StartDate)
             {
                 throw new BadRequestException(
@@ -102,6 +136,15 @@ namespace RentACar.Api.Services
             {
                 throw new ConflictException(
                     "O carro não está disponível para estas datas.");
+            }
+
+            if (UserHasReservationInDates(
+                reservation.UserId,
+                reservation.StartDate,
+                reservation.EndDate))
+            {
+                throw new ConflictException(
+                    "Não é possível ter dois carros reservados para as mesmas datas.");
             }
 
             var existingReservations =

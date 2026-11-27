@@ -156,10 +156,11 @@ Porquê assim: a demo funciona sem internet, não há pedidos a sites externos e
 | Regra | Descrição |
 | --- | --- |
 | R1 | O utilizador e o carro têm de existir. |
-| R2 | A data de início não pode estar no passado e a data de fim tem de ser depois da data de início. |
-| R3 | O carro não pode ter outra reserva ativa que se sobreponha às datas pedidas. O dia de devolução fica bloqueado para limpeza. |
+| R2 | A data de início tem de ser a partir de amanhã (não se reserva para o próprio dia) e a data de fim tem de ser depois da data de início. Decidido a 26/11: o carro precisa de ser preparado e, pela C3, uma reserva para hoje nunca poderia ser cancelada. |
+| R3 | O carro não pode ter outra reserva ativa que se sobreponha às datas pedidas. O dia de devolução fica bloqueado para limpeza, nas duas reservas (a existente e a nova). |
 | R4 | A duração máxima é de 30 dias. |
 | R5 | O preço é calculado pelo servidor: dias entre `StartDate` e `EndDate` vezes `DailyPrice`. O dia de devolução bloqueia o carro mas não é cobrado. |
+| R6 | O mesmo utilizador não pode ter dois carros reservados para as mesmas datas. Pode levantar um carro novo no dia em que devolve o outro. Acrescentada a 26/11. |
 
 ### Ao cancelar uma reserva
 
@@ -173,15 +174,21 @@ Porquê assim: a demo funciona sem internet, não há pedidos a sites externos e
 
 **Versão simples:** duas pessoas não podem ter o mesmo carro ao mesmo tempo. E quando um carro é devolvido, a empresa precisa desse dia para o lavar. Se uma reserva acaba no dia 10, a próxima só pode começar no dia 11.
 
-**Versão técnica:** interseção de intervalos fechados. Como os dois extremos bloqueiam o carro, usamos `<=` e `>=`:
+**Versão técnica:** interseção de intervalos `[início, fim[` num único método, `ReservationServices.DatesOverlap`. Para o carro (R3), o dia de limpeza entra somando um dia ao fim das duas reservas; para o utilizador (R6), não:
 
 ```csharp
-// Return day is blocked as a buffer day for cleaning and inspection,
-// so both ends of the interval are inclusive.
-bool overlaps = newStart <= existingEnd && newEnd >= existingStart;
+// Um único método de sobreposição: o dia de fim não conta
+public static bool DatesOverlap(DateOnly start1, DateOnly end1, DateOnly start2, DateOnly end2)
+    => start1 < end2 && start2 < end1;
+
+// R3 (carro): + 1 dia de limpeza nas duas reservas
+DatesOverlap(newStart, newEnd.AddDays(1), existing.StartDate, existing.EndDate.AddDays(1));
+
+// R6 (utilizador): pode trocar de carro no dia em que devolve o outro
+DatesOverlap(newStart, newEnd, existing.StartDate, existing.EndDate);
 ```
 
-Esta regra é usada em dois sítios: ao criar uma reserva (Bruno) e ao listar carros disponíveis (Rodrigo). Fica escrita **num único método**, da responsabilidade do Bruno, e é reutilizada. Isto aplica o princípio DRY (Don't Repeat Yourself): se a regra mudar, muda num só sítio.
+Esta regra é usada em três sítios: ao criar uma reserva para o carro (R3) e para o utilizador (R6), e ao listar carros disponíveis (Rodrigo, através do `IsCarAvailable`). Fica escrita **num único método**, da responsabilidade do Bruno, e é reutilizada. Isto aplica o princípio DRY (Don't Repeat Yourself): se a regra mudar, muda num só sítio.
 
 ## 8. Tratamento de erros
 

@@ -42,15 +42,26 @@
       [class.field--error]="password.invalid && (password.touched || loginForm.submitted)"
     >
       <label for="password">Password</label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        autocomplete="current-password"
-        required
-        [(ngModel)]="form.password"
-        #password="ngModel"
-      />
+      <div class="field__password">
+        <input
+          id="password"
+          name="password"
+          [type]="showPassword() ? 'text' : 'password'"
+          autocomplete="current-password"
+          required
+          [(ngModel)]="form.password"
+          #password="ngModel"
+        />
+        <!-- type="button": este botão não envia o formulário. aria-pressed diz ao leitor de ecrã se está ligado -->
+        <button
+          class="field__toggle"
+          type="button"
+          [attr.aria-pressed]="showPassword()"
+          (click)="showPassword.set(!showPassword())"
+        >
+          {{ showPassword() ? 'Ocultar' : 'Mostrar' }}
+        </button>
+      </div>
       @if (password.invalid && (password.touched || loginForm.submitted)) {
         <span class="field__error">Escreve a password.</span>
       }
