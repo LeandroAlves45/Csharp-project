@@ -3,6 +3,7 @@ using RentACar.Api.Models;
 
 namespace RentACar.Api.Repositories
 {
+    // Só leitura e escrita das reservas: as regras estão no ReservationServices
     public interface IReservationRepository
     {
         List<Reservation> GetAll();

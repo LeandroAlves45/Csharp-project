@@ -1,5 +1,6 @@
 namespace RentACar.Api.Models
 {
+    // Entidade interna do carro. Sai da API sempre como CarResponse (DTO)
     public class Car
     {
         public int Id { get; set; }
@@ -12,6 +13,7 @@ namespace RentACar.Api.Models
 
         public string Category { get; set; } = string.Empty;
 
+        // decimal e não double: dinheiro precisa de valores exatos (sem erros de arredondamento)
         public decimal DailyPrice { get; set; }
 
         public string ImageUrl { get; set; } = string.Empty;

@@ -5,6 +5,8 @@ using RentACar.Api.Services;
 
 namespace RentACar.Api.Repositories
 {
+    // Implementação do AuthService: registo e login com a password guardada em hash.
+    // As regras da autenticação estão aqui; o controller só traduz as exceções em HTTP.
     public class AuthServiceUI : AuthService
     {
         private readonly UserRepository _userRepository;
@@ -13,6 +15,8 @@ namespace RentACar.Api.Repositories
         public AuthServiceUI(UserRepository userRepository)
         {
             _userRepository = userRepository;
+            // PasswordHasher (ASP.NET Core Identity): gera o hash com salt, por isso
+            // a mesma password dá hashes diferentes e a password nunca é guardada em texto
             _passwordHasher = new PasswordHasher<User>();
         }
 
@@ -49,7 +53,7 @@ namespace RentACar.Api.Repositories
                 CreatedAt = DateTime.UtcNow
             };
 
-            // Gerar o hash da senha
+            // Só o hash é guardado; a password em texto não sai deste método
             user.PasswordHash = _passwordHasher.HashPassword(user, signIn.Password);
 
             //Guardar o user no repositório
@@ -71,12 +75,14 @@ namespace RentACar.Api.Repositories
 
             if (user == null)
             {
+                // A mesma mensagem para email inexistente e password errada: não revela que emails existem
                 throw new UnauthorizedAccessException("Email ou password inválidos.");
             }
 
             // Verificar a password
             var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, login.Password);
 
+            // O hasher volta a calcular o hash com o salt guardado e compara: nunca há "desencriptar"
             if (result == PasswordVerificationResult.Failed)
             {
                 throw new UnauthorizedAccessException("Email ou password inválidos.");

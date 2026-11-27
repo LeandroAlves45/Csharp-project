@@ -23,6 +23,6 @@ export const routes: Routes = [
     title: 'As minhas Reservas | AutoRent',
   },
 
-  // Qualquer outro caminho volta ao início. No Passo 10 passa a mostrar a página 404.
+  // Qualquer outro caminho (URL inexistente) volta à página dos carros
   { path: '**', redirectTo: 'cars' },
 ];

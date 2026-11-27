@@ -2,7 +2,7 @@ import { Component, ElementRef, afterNextRender, input, output, viewChild } from
 import { Alert } from '../alert/alert';
 
 // Janela de confirmação genérica: o conteúdo (o resumo) vem do pai com <ng-content>.
-// Assim serve para confirmar a reserva (Passo 7b) e o cancelamento (Passo 8).
+// Assim a mesma janela serve para confirmar a reserva e o cancelamento.
 @Component({
   selector: 'app-confirm-modal',
   imports: [Alert],

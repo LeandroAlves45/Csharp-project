@@ -5,10 +5,13 @@ using RentACar.Api.Services;
 
 namespace RentACar.Api.Controllers
 {
+    // Controller fino: recebe o DTO, chama o AuthService e escolhe o código HTTP.
+    // As regras (campos obrigatórios, email único, password) estão no service.
     [ApiController]
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
+        // Depende da interface (AuthService), não da classe: o Program.cs escolhe a implementação
         private readonly AuthService _authService;
 
         public AuthController(AuthService authService)
@@ -16,7 +19,7 @@ namespace RentACar.Api.Controllers
             _authService = authService;
         }
 
-        // Registar um novo utilizador
+        // POST /api/auth/register: 201 com o utilizador criado (sem a password)
 
         [HttpPost("register")]
         public IActionResult SignIn(SignIn signIn)
@@ -27,6 +30,7 @@ namespace RentACar.Api.Controllers
 
                 return StatusCode(201, user);
             }
+            // Cada tipo de exceção do service corresponde a um código HTTP: 400 dados inválidos, 409 email repetido
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
@@ -37,7 +41,7 @@ namespace RentACar.Api.Controllers
             }
         }
 
-        // Login de um utilizador
+        // POST /api/auth/login: 200 com id, nome e email. O frontend guarda isto como sessão
 
         [HttpPost("login")]
         public IActionResult Login(Login login)
@@ -48,6 +52,8 @@ namespace RentACar.Api.Controllers
 
                 return Ok(user);
             }
+            // 400 campos vazios; 401 credenciais erradas (a mesma mensagem para email e password,
+            // para não revelar que emails existem)
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);

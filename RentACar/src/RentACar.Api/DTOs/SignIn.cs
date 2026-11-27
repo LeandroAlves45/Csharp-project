@@ -1,5 +1,6 @@
 namespace RentACar.Api.DTOs
 {
+	// Corpo do POST /api/auth/register
 	public class SignIn
 	{
 		public string Name { get; set; } = string.Empty;
