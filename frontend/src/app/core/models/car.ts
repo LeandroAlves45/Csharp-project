@@ -1,5 +1,5 @@
-// Espelho do Car combinado com o Rodrigo. Atenção: a API (20/11) ainda devolve "image";
-// enquanto não mudar para "imageUrl", o frontend usa dados mock nos carros.
+// Espelho do CarResponse da API (área do Rodrigo).
+// Se o C# mudar, esta interface muda também, para o build apanhar as diferenças.
 
 export interface Car {
   id: number;

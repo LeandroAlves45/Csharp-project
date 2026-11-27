@@ -2,6 +2,7 @@ using RentACar.Api.Models;
 
 namespace RentACar.Api.Repositories
 {
+    // Utilizadores numa List em memória (Singleton no Program.cs)
     public class MemoryUserRepository : UserRepository
     {
         private readonly List<User> _users = new List<User>(); // Lista de utilizadores em memória, sem ser preciso uma BD

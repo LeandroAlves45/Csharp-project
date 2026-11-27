@@ -2,6 +2,8 @@ using RentACar.Api.Models;
 
 namespace RentACar.Api.Data
 {
+    // Frota inicial: os carros existem desde que a API arranca (não há registo de carros).
+    // ImageUrl é um caminho relativo; o ficheiro está em wwwroot/images/cars
     public static class SeedData
     {
         public static List<Car> GetCars()

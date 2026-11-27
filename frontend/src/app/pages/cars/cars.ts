@@ -108,7 +108,7 @@ export class Cars {
     { equal: (a, b) => a.start === b.start && a.end === b.end && a.reload === b.reload },
   );
 
-  // NOVO: as mesmas regras aplicadas às datas da reserva
+  // As mesmas regras aplicadas às datas escolhidas dentro da janela
   protected readonly reservationDays = computed(() =>
     rentalDays(this.reservationStart(), this.reservationEnd()),
   );

@@ -8,12 +8,16 @@ using RentACar.Api.Exceptions;
 
 namespace RentACar.Api.Services
 {
+    // Todas as regras das reservas (R1 a R6, C1 a C3) estão aqui, e só aqui.
+    // Não sabe nada de HTTP: quando uma regra falha, lança uma das nossas exceções
+    // e o GlobalExceptionHandler escolhe o código (400, 403, 404, 409).
     public class ReservationServices
     {
         private readonly IReservationRepository _reservationRepository;
         private readonly ICarRepository _carRepository;
         private readonly UserRepository _userRepository;
 
+        // Recebe os repositórios por injeção de dependências (registados no Program.cs)
         public ReservationServices(
             IReservationRepository reservationRepository,
             ICarRepository carRepository,
@@ -24,6 +28,7 @@ namespace RentACar.Api.Services
             _userRepository = userRepository;
         }
 
+        // Histórico de um utilizador: todas as reservas dele, ativas e canceladas
         public List<Reservation> GetReservationsByUser(int userId)
         {
             var reservations = _reservationRepository.GetAll();
@@ -33,6 +38,10 @@ namespace RentACar.Api.Services
                 .ToList();
         }
 
+        // A regra de sobreposição num único método (DRY), usada para o carro (R3) e para o utilizador (R6).
+        // Intervalos [início, fim[: o dia de fim não conta, por isso uma reserva que acaba a 10
+        // e outra que começa a 10 não se sobrepõem. Dois intervalos cruzam-se quando cada um
+        // começa antes de o outro acabar.
         public static bool DatesOverlap(
             DateOnly start1,
             DateOnly end1,
@@ -42,11 +51,11 @@ namespace RentACar.Api.Services
             return start1 < end2 && start2 < end1;
         }
 
-        // Carro não pode ter outra reserva ativa nessas datas.
+        // R3: o carro não pode ter outra reserva ativa nessas datas.
         // AddDays(1) nas duas reservas: o dia de devolução fica bloqueado para limpeza.
         // Se uma reserva acaba a 10, a próxima deste carro só pode começar a 11
         // (e uma reserva nova que acabe a 10 não pode ter outra a começar a 10).
-
+        // As canceladas não contam: o carro volta a ficar livre.
         public bool IsCarAvailable(
             int carId,
             DateOnly startDate,
@@ -62,7 +71,7 @@ namespace RentACar.Api.Services
                         existing.EndDate.AddDays(1)));
         }
 
-        // O mesmo utilizador não pode ter dois carros ao mesmo tempo.
+        // R6: o mesmo utilizador não pode ter dois carros ao mesmo tempo.
         // Sem o dia extra de limpeza: a pessoa pode devolver um carro e levantar outro no mesmo dia.
         public bool UserHasReservationInDates(
             int userId,
@@ -79,8 +88,11 @@ namespace RentACar.Api.Services
                         existing.EndDate));
         }
 
+        // As validações vão da mais simples à mais cara: primeiro se existe (R1),
+        // depois as datas (R2, R4) e só no fim as sobreposições (R3, R6)
         public void CreateReservation(Reservation reservation)
         {
+            // R1: o carro e o utilizador têm de existir (404)
             var car = _carRepository.GetById(reservation.CarId);
 
             if (car == null)
@@ -97,6 +109,7 @@ namespace RentACar.Api.Services
                     "O utilizador selecionado não existe.");
             }
 
+            // R2: nada no passado (400); a seguir, também não para hoje
             if (reservation.StartDate <
                 DateOnly.FromDateTime(DateTime.Today))
             {
@@ -113,22 +126,26 @@ namespace RentACar.Api.Services
                     "A data de início tem de ser a partir de amanhã.");
             }
 
+            // R2: o fim tem de ser depois do início (pelo menos 1 dia cobrado)
             if (reservation.EndDate <= reservation.StartDate)
             {
                 throw new BadRequestException(
                     "A data de fim tem de ser posterior à data de início.");
             }
 
+            // DayNumber conta dias desde uma data fixa: a diferença dá os dias cobrados (R5)
             int rentalDays =
                 reservation.EndDate.DayNumber -
                 reservation.StartDate.DayNumber;
 
+            // R4: no máximo 30 dias
             if (rentalDays > 30)
             {
                 throw new BadRequestException(
                     "A reserva não pode exceder 30 dias.");
             }
 
+            // R3: carro ocupado nessas datas (409)
             if (!IsCarAvailable(
                 reservation.CarId,
                 reservation.StartDate,
@@ -138,6 +155,7 @@ namespace RentACar.Api.Services
                     "O carro não está disponível para estas datas.");
             }
 
+            // R6: o utilizador já tem outro carro nessas datas (409)
             if (UserHasReservationInDates(
                 reservation.UserId,
                 reservation.StartDate,
@@ -150,11 +168,13 @@ namespace RentACar.Api.Services
             var existingReservations =
                 _reservationRepository.GetAll();
 
+            // R5: o preço é sempre calculado pelo servidor, nunca vem do cliente
             reservation.TotalPrice = car.DailyPrice * rentalDays;
             reservation.Status = ReservationStatus.Active;
             reservation.CreatedAt = DateTime.Now;
             reservation.CancelledAt = null;
 
+            // Id sequencial: o maior id existente + 1 (a lista em memória não gera ids sozinha)
             reservation.Id = existingReservations.Count == 0
                 ? 1
                 : existingReservations.Max(r => r.Id) + 1;
@@ -162,6 +182,8 @@ namespace RentACar.Api.Services
             _reservationRepository.AddReservation(reservation);
         }
 
+        // Cancelar não apaga a reserva: muda o estado para Cancelled e guarda a data,
+        // para o histórico continuar completo
         public void CancelReservation(int reservationId, int userId)
         {
             var reservation =
@@ -173,18 +195,21 @@ namespace RentACar.Api.Services
                     "A reserva não existe.");
             }
 
+            // C1: só o dono da reserva a pode cancelar (403)
             if (reservation.UserId != userId)
             {
                 throw new ForbiddenException(
                     "O utilizador não tem permissão para cancelar esta reserva.");
             }
 
+            // C2: só reservas ativas (409)
             if (reservation.Status == ReservationStatus.Cancelled)
             {
                 throw new ConflictException(
                     "A reserva já foi cancelada.");
             }
 
+            // C3: prazo de cancelamento (409)
             if (reservation.StartDate <=
                 DateOnly.FromDateTime(DateTime.Today).AddDays(1))
             {

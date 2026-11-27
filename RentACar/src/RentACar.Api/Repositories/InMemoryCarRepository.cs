@@ -4,6 +4,8 @@ using RentACar.Api.Models;
 
 namespace RentACar.Api.Repositories
 {
+	// Carros numa List em memória, carregados do SeedData.
+	// Registado como Singleton: a mesma lista para todos os pedidos
 	public class InMemoryCarRepository : ICarRepository
 	{
 		private readonly List<Car> _cars;

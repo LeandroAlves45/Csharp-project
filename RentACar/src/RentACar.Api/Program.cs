@@ -7,6 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// Ativa os Controllers: cada classe em Controllers/ passa a responder a pedidos HTTP
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -51,7 +52,9 @@ if (app.Environment.IsDevelopment())
 // Primeiro do pipeline: assim apanha exceções vindas de tudo o que corre depois dele
 app.UseExceptionHandler();
 
+// Pedidos http passam para https (o frontend usa sempre https://localhost:7215)
 app.UseHttpsRedirection();
+// Serve os ficheiros de wwwroot/ (as fotografias dos carros em /images/cars)
 app.UseStaticFiles();
 
 // Tem de vir antes de UseAuthorization e MapControllers, para os cabeçalhos CORS

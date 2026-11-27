@@ -1,5 +1,6 @@
 namespace RentACar.Api.DTOs
 {
+    // O que a API devolve de um carro (DTO de saída)
     public class CarResponse
     {
         public int Id { get; set; }

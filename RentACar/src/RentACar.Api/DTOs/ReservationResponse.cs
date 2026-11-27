@@ -4,6 +4,7 @@ using RentACar.Api.Models;
 
 namespace RentACar.Api.DTOs;
 
+// O que a API devolve de uma reserva (DTO de saída)
 public class ReservationResponse
 {
     public int Id { get; set; }

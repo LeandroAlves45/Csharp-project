@@ -1,7 +1,7 @@
 import { Car } from '../models/car';
 
-// Cópia do seed da API (Data/SeedData.cs, 20/11), já com imageUrl.
-// Só existe até a API filtrar por datas e devolver imageUrl (análise de 20/11, ponto 3).
+// Carros de exemplo (copiados do Data/SeedData.cs) usados só nos testes.
+// A app real recebe os carros da API.
 export const MOCK_CARS: Car[] = [
   {
     id: 1,
